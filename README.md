@@ -43,8 +43,22 @@ ds.AppendValues("George", "Washington")
 
 Add new columns:
 ```go
-ds.AppendColumn("age", []interface{}{90, 67, 83})
-ds.AppendColumnValues("sex", "male", "male", "male")
+ds.AppendColumn("age", []interface{}{90, 67})
+ds.AppendColumnValues("sex", "male", "male")
+```
+
+Add a dynamic column, by passing a function which has access to the current row, and must
+return a value:
+```go
+func lastNameLen(row []interface{}) interface{} {
+	return len(row[1].(string))
+}
+ds.AppendDynamicColumn("lastName length", lastNameLen)
+ds.CSV()
+// >>
+// firstName, lastName, age, sex, lastNameLen
+// John, Adams, 90, male, 5
+// George, Washington, 67, male, 10
 ```
 
 Delete rows:
