@@ -103,7 +103,7 @@ func (d *Dataset) DeleteColumn(header string) *Dataset {
 
 // JSON returns a JSON representation of the dataset as string.
 func (d *Dataset) JSON() (string, error) {
-	back := d.ArrayOfMap()
+	back := d.Dict()
 
 	b, err := json.Marshal(back)
 	if err != nil {
@@ -119,7 +119,7 @@ func (d *Dataset) XML() string {
 
 // XMLWithTagNamePrefixIndent returns a XML representation with custom tag, prefix and indent.
 func (d *Dataset) XMLWithTagNamePrefixIndent(tagName, prefix, indent string) string {
-	back := d.ArrayOfMap()
+	back := d.Dict()
 
 	var b bytes.Buffer
 	b.WriteString("<dataset>\n")
@@ -165,7 +165,7 @@ func (d *Dataset) TSV() (string, error) {
 
 // YAML returns a YAML representation of the dataset as string.
 func (d *Dataset) YAML() (string, error) {
-	back := d.ArrayOfMap()
+	back := d.Dict()
 
 	b, err := yaml.Marshal(back)
 	if err != nil {
@@ -183,8 +183,8 @@ func indexOfColumn(header string, d *Dataset) int {
 	return -1
 }
 
-// ArrayOfMap returns the dataset as an array of map where each key is a column.
-func (d *Dataset) ArrayOfMap() []interface{} {
+// Dict returns the dataset as an array of map where each key is a column.
+func (d *Dataset) Dict() []interface{} {
 	back := make([]interface{}, d.rows)
 	for i, e := range d.data {
 		m := make(map[string]interface{}, d.cols-1)

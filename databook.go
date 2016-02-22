@@ -70,7 +70,7 @@ func (d *Databook) YAML() (string, error) {
 	for _, s := range d.sheets {
 		y[i] = make(map[string]interface{})
 		y[i]["title"] = s.title
-		y[i]["dataset"] = s.dataset.ArrayOfMap()
+		y[i]["dataset"] = s.dataset.Dict()
 	}
 	b, err := yaml.Marshal(y)
 	if err != nil {
