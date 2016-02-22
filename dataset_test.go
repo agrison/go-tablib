@@ -1,7 +1,7 @@
 package tablib
 
 import (
-	_ "fmt"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -59,6 +59,20 @@ func TestDeleteColumn(t *testing.T) {
 	if ds.cols != 1 && ds.Column("lastName") != nil {
 		t.Errorf("lastName should not be part of the dataset")
 	}
+}
+
+func lastNameLen(row []interface{}) interface{} {
+	return len(row[1].(string))
+}
+
+func TestDynamicColumn(t *testing.T) {
+	ds := NewDataset([]string{"firstName", "lastName"})
+	ds.AppendValues("George", "Washington")
+	ds.AppendValues("Henry", "Ford")
+	ds.AppendColumn("age", []interface{}{90, 67, 83})
+	ds.AppendDynamicColumn("Name length", lastNameLen)
+	x, _ := ds.CSV()
+	fmt.Printf("%s\n", x)
 }
 
 func TestJSON(t *testing.T) {

@@ -19,6 +19,10 @@ type Dataset struct {
 	cols    int
 }
 
+// DynamicColumn represents a function that can be evaluated dynamically
+// when exporting to a predefined format.
+type DynamicColumn func([]interface{}) interface{}
+
 // NewDataset creates a new dataset.
 func NewDataset(headers []string) *Dataset {
 	return NewDatasetWithData(headers, nil)
@@ -62,6 +66,15 @@ func (d *Dataset) AppendColumnValues(header string, cols ...interface{}) *Datase
 	return d.AppendColumn(header, cols[:])
 }
 
+func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) *Dataset {
+	d.headers = append(d.headers, header)
+	d.cols++
+	for i, e := range d.data {
+		d.data[i] = append(e, fn)
+	}
+	return d
+}
+
 // Column returns all the values for a specific column
 func (d *Dataset) Column(header string) []interface{} {
 	colIndex := indexOfColumn(header, d)
@@ -71,7 +84,12 @@ func (d *Dataset) Column(header string) []interface{} {
 
 	values := make([]interface{}, d.rows)
 	for i, e := range d.data {
-		values[i] = e[colIndex]
+		switch e[colIndex].(type) {
+		case DynamicColumn:
+			values[i] = e[colIndex].(DynamicColumn)(e)
+		default:
+			values[i] = e[colIndex]
+		}
 	}
 	return values
 }
@@ -189,7 +207,12 @@ func (d *Dataset) Dict() []interface{} {
 	for i, e := range d.data {
 		m := make(map[string]interface{}, d.cols-1)
 		for j, c := range d.headers {
-			m[c] = e[j]
+			switch e[j].(type) {
+			case DynamicColumn:
+				m[c] = e[j].(DynamicColumn)(e)
+			default:
+				m[c] = e[j]
+			}
 		}
 		back[i] = m
 	}
@@ -209,21 +232,28 @@ func (d *Dataset) Records() [][]string {
 		j := 0
 		records[rowIndex] = make([]string, d.cols)
 		for _, v := range e {
+			vv := v
 			switch v.(type) {
+			case DynamicColumn:
+				vv = v.(DynamicColumn)(e)
+			default:
+				// nothing
+			}
+			switch vv.(type) {
 			case string:
-				records[rowIndex][j] = v.(string)
+				records[rowIndex][j] = vv.(string)
 			case int:
-				records[rowIndex][j] = strconv.Itoa(v.(int))
+				records[rowIndex][j] = strconv.Itoa(vv.(int))
 			case int64:
-				records[rowIndex][j] = strconv.FormatInt(v.(int64), 10)
+				records[rowIndex][j] = strconv.FormatInt(vv.(int64), 10)
 			case uint64:
-				records[rowIndex][j] = strconv.FormatUint(v.(uint64), 10)
+				records[rowIndex][j] = strconv.FormatUint(vv.(uint64), 10)
 			case bool:
-				records[rowIndex][j] = strconv.FormatBool(v.(bool))
+				records[rowIndex][j] = strconv.FormatBool(vv.(bool))
 			case float64:
-				records[rowIndex][j] = strconv.FormatFloat(v.(float64), 'G', -1, 32)
+				records[rowIndex][j] = strconv.FormatFloat(vv.(float64), 'G', -1, 32)
 			case time.Time:
-				records[rowIndex][j] = v.(time.Time).Format(time.RFC3339)
+				records[rowIndex][j] = vv.(time.Time).Format(time.RFC3339)
 			default:
 				fmt.Printf("Skipping value.")
 			}
