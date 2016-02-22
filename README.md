@@ -8,7 +8,7 @@
 [godocs]: https://godoc.org/github.com/agrison/go-tablib
 [goreportcard]: https://goreportcard.com/report/github.com/agrison/go-tablib
 
-Tablib is a format-agnostic tabular dataset library, written in Go.
+Go-Tablib is a format-agnostic tabular dataset library, written in Go.
 This is a port of the famous Python's [tablib](https://github.com/kennethreitz/tablib) by Kenneth Reitz.
 
 Output formats supported:
