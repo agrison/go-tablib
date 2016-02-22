@@ -124,7 +124,7 @@ ds.Sort("Year").CSV()
 
 ## Loading
 
-## JSON
+### JSON
 ```go
 ds, _ := LoadJSON([]byte(`[
   {"age":90,"firstName":"John","lastName":"Adams"},
@@ -133,7 +133,7 @@ ds, _ := LoadJSON([]byte(`[
 ]`))
 ```
 
-## YAML
+### YAML
 ```go
 ds, _ := LoadYAML([]byte(`- age: 90
   firstName: John
