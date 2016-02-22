@@ -61,7 +61,7 @@ ds.DeleteColumn("sex")
 
 ### JSON
 ```go
-json, _ := ds.Json()
+json, _ := ds.JSON()
 fmt.Printf("%s\n", json)
 // >>>
 // [{"age":90,"firstName":"John","lastName":"Adams"},{"age":67,"firstName":"George","lastName":"Washington"},{"age":83,"firstName":"Henry","lastName":"Ford"}]
@@ -69,7 +69,7 @@ fmt.Printf("%s\n", json)
 
 ### XML
 ```go
-xml := ds.Xml()
+xml := ds.XML()
 fmt.Printf("%s\n", xml)
 // >>>
 // <dataset>
@@ -91,7 +91,7 @@ fmt.Printf("%s\n", xml)
 
 ### CSV
 ```go
-csv, _ := ds.Csv()
+csv, _ := ds.CSV()
 fmt.Printf("%s\n", csv)
 // >>>
 // firstName,lastName,age
@@ -102,7 +102,7 @@ fmt.Printf("%s\n", csv)
 
 ### TSV
 ```go
-tsv, _ := ds.Tsv()
+tsv, _ := ds.TSV()
 fmt.Printf("%s\n", tsv)
 // >>>
 // firstName  lastName  age
@@ -113,7 +113,7 @@ fmt.Printf("%s\n", tsv)
 
 ### YAML
 ```go
-yaml, _ := ds.Yaml()
+yaml, _ := ds.YAML()
 fmt.Printf("%s\n", yaml)
 // >>>
 // - age: 90

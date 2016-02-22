@@ -65,7 +65,7 @@ func TestJson(t *testing.T) {
 	ds.AppendValues("George", "Washington")
 	ds.AppendValues("Henry", "Ford")
 	ds.AppendColumn("age", []interface{}{90, 67, 83})
-	j, _ := ds.Json()
+	j, _ := ds.JSON()
 	if j != `[{"age":90,"firstName":"George","lastName":"Washington"},{"age":67,"firstName":"Henry","lastName":"Ford"}]` {
 		t.Errorf("error Json()")
 	}
@@ -76,7 +76,7 @@ func TestYaml(t *testing.T) {
 	ds.AppendValues("George", "Washington")
 	ds.AppendValues("Henry", "Ford")
 	ds.AppendColumn("age", []interface{}{90, 67})
-	y, _ := ds.Yaml()
+	y, _ := ds.YAML()
 	if !stringUtils.Contains(y, "- age:") && !stringUtils.Contains(y, "firstName:") {
 		t.Errorf("error Yaml()")
 	}

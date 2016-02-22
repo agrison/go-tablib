@@ -135,8 +135,8 @@ func (d *Dataset) DeleteColumn(header string) *Dataset {
 	return d
 }
 
-// Json returns a JSON representation of the dataset as string.
-func (d *Dataset) Json() (string, error) {
+// JSON returns a JSON representation of the dataset as string.
+func (d *Dataset) JSON() (string, error) {
 	back := d.ArrayOfMap()
 
 	b, err := json.Marshal(back)
@@ -146,13 +146,13 @@ func (d *Dataset) Json() (string, error) {
 	return string(b), nil
 }
 
-// Xml returns a XML representation of the dataset as string.
-func (d *Dataset) Xml() string {
-	return d.XmlWithTagNamePrefixIndent("row", "  ", "  ")
+// XML returns a XML representation of the dataset as string.
+func (d *Dataset) XML() string {
+	return d.XMLWithTagNamePrefixIndent("row", "  ", "  ")
 }
 
-// XmlWithTagNamePrefixIndent returns a XML representation with custom tag, prefix and indent.
-func (d *Dataset) XmlWithTagNamePrefixIndent(tagName, prefix, indent string) string {
+// XMLWithTagNamePrefixIndent returns a XML representation with custom tag, prefix and indent.
+func (d *Dataset) XMLWithTagNamePrefixIndent(tagName, prefix, indent string) string {
 	back := d.ArrayOfMap()
 
 	var b bytes.Buffer
@@ -166,8 +166,8 @@ func (d *Dataset) XmlWithTagNamePrefixIndent(tagName, prefix, indent string) str
 	return b.String()
 }
 
-// Csv returns a CSV representation of the dataset as string.
-func (d *Dataset) Csv() (string, error) {
+// CSV returns a CSV representation of the dataset as string.
+func (d *Dataset) CSV() (string, error) {
 	records := d.Records()
 	var b bytes.Buffer
 
@@ -181,8 +181,8 @@ func (d *Dataset) Csv() (string, error) {
 	return b.String(), nil
 }
 
-// Tsv returns a TSV representation of the dataset as string.
-func (d *Dataset) Tsv() (string, error) {
+// TSV returns a TSV representation of the dataset as string.
+func (d *Dataset) TSV() (string, error) {
 	records := d.Records()
 	var b bytes.Buffer
 
@@ -197,8 +197,8 @@ func (d *Dataset) Tsv() (string, error) {
 	return b.String(), nil
 }
 
-// Yaml returns a YAML representation of the dataset as string.
-func (d *Dataset) Yaml() (string, error) {
+// YAML returns a YAML representation of the dataset as string.
+func (d *Dataset) YAML() (string, error) {
 	back := d.ArrayOfMap()
 
 	b, err := yaml.Marshal(back)
