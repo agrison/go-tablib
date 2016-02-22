@@ -1,16 +1,31 @@
 package tablib
 
 import (
+	"encoding/json"
 	"gopkg.in/yaml.v2"
 )
 
-// LoadDataset loads a dataset from either a YAML, JSON, CSV, TSV or XML file
+// LoadYAML loads a dataset from either a YAML source
 func LoadYAML(yamlContent []byte) (*Dataset, error) {
 	var input []map[string]interface{}
 	if err := yaml.Unmarshal(yamlContent, &input); err != nil {
 		return nil, err
 	}
 
+	return internalLoadFromDict(input)
+}
+
+// LoadJSON loads a dataset from either a JSON source
+func LoadJSON(jsonContent []byte) (*Dataset, error) {
+	var input []map[string]interface{}
+	if err := json.Unmarshal(jsonContent, &input); err != nil {
+		return nil, err
+	}
+
+	return internalLoadFromDict(input)
+}
+
+func internalLoadFromDict(input []map[string]interface{}) (*Dataset, error) {
 	// retrieve columns
 	headers := make([]string, 0, 10)
 	for h := range input[0] {
