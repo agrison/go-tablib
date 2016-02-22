@@ -135,9 +135,13 @@ func TestLoadYAML(t *testing.T) {
 }
 
 func TestLoadJSON(t *testing.T) {
-	ds, _ := LoadYAML([]byte(`[{"age":90,"firstName":"John","lastName":"Adams"},{"age":67,"firstName":"George","lastName":"Washington"},{"age":83,"firstName":"Henry","lastName":"Ford"}]`))
+	ds, _ := LoadJSON([]byte(`[
+    {"age":90,"firstName":"John","lastName":"Adams"},
+    {"age":67,"firstName":"George","lastName":"Washington"},
+    {"age":83,"firstName":"Henry","lastName":"Ford"}
+  ]`))
 	if ds.data[1][0] != "Washington" && ds.data[1][1] != "Washington" && ds.data[1][2] != "Washington" {
-		t.Errorf("Error loadingYAML")
+		t.Errorf("Error LoadJSON")
 	}
 	/*fmt.Printf("%+v\n", ds.headers)
 	fmt.Printf("%+v\n", ds.data)

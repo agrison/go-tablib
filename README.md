@@ -122,6 +122,30 @@ ds.Sort("Year").CSV()
 // Citroen, Picasso II, 2013
 ```
 
+## Loading
+
+## JSON
+```go
+ds, _ := LoadJSON([]byte(`[
+  {"age":90,"firstName":"John","lastName":"Adams"},
+  {"age":67,"firstName":"George","lastName":"Washington"},
+  {"age":83,"firstName":"Henry","lastName":"Ford"}
+]`))
+```
+
+## YAML
+```go
+ds, _ := LoadYAML([]byte(`- age: 90
+  firstName: John
+  lastName: Adams
+- age: 67
+  firstName: George
+  lastName: Washington
+- age: 83
+  firstName: Henry
+  lastName: Ford`))
+```
+
 ## Exports
 
 ### JSON
