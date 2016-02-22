@@ -57,6 +57,57 @@ Delete columns:
 ds.DeleteColumn("sex")
 ```
 
+## Filtering
+
+You can add **tags** to rows by using a specific `Dataset` method. This allows you to filter your `Dataset` later. This can be useful to separate rows of data based on arbitrary criteria (e.g. origin) that you don’t want to include in your `Dataset`.
+```go
+ds := NewDataset([]string{"Maker", "Model"})
+ds.AppendTagged([]interface{}{"Porsche", "911"}, "fast", "luxury")
+ds.AppendTagged([]interface{}{"Skoda", "Octavia"}, "family")
+ds.AppendTagged([]interface{}{"Ferrari", "458"}, "fast", "luxury")
+ds.AppendValues("Citroen", "Picasso")
+ds.AppendTagged([]interface{}{"Bentley", "Continental"}, "luxury")
+```
+
+Filtering the `Dataset` is possible by calling `Filter(column)`:
+```go
+luxuryCars := ds.Filter("luxury").CSV()
+// >>>
+// Maker,Model
+// Porsche,911
+// Ferrari,458
+// Bentley,Continental
+```
+
+```go
+fastCars := ds.Filter("fast").CSV()
+// >>>
+// Maker,Model
+// Porsche,911
+// Ferrari,458
+```
+
+## Sorting
+
+Datasets can be sorted by a specific column.
+```go
+ds := NewDataset([]string{"Maker", "Model", "Year"})
+ds.AppendValues("Porsche", "991", 2012)
+ds.AppendValues("Skoda", "Octavia", 2011)
+ds.AppendValues("Ferrari", "458", 2009)
+ds.AppendValues("Citroen", "Picasso II", 2013)
+ds.AppendValues("Bentley", "Continental GT"}, 2003)
+
+ds.Sort("Year").CSV()
+// >>
+// Maker, Model, Year
+// Bentley, Continental GT, 2003
+// Ferrari, 458, 2009
+// Skoda, Octavia, 2011
+// Porsche, 991, 2012
+// Citroen, Picasso II, 2013
+```
+
 ## Exports
 
 ### JSON
