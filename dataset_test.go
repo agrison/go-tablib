@@ -71,8 +71,6 @@ func TestDynamicColumn(t *testing.T) {
 	ds.AppendValues("Henry", "Ford")
 	ds.AppendColumn("age", []interface{}{90, 67, 83})
 	ds.AppendDynamicColumn("Name length", lastNameLen)
-	x, _ := ds.CSV()
-	fmt.Printf("%s\n", x)
 }
 
 func TestTags(t *testing.T) {
@@ -101,6 +99,20 @@ func TestTags(t *testing.T) {
 	if ds.rows != 5 {
 		t.Errorf("Should be 5 cars (original is untouched)")
 	}
+}
+
+func TestSort(t *testing.T) {
+	ds := NewDataset([]string{"firstName", "lastName"})
+	ds.AppendValues("George", "Washington")
+	ds.AppendValues("Henry", "Ford")
+	ds.AppendValues("Foo", "Bar")
+	ds.AppendColumn("age", []interface{}{90, 67, 83})
+	nd1 := ds.Sort("lastName")
+	x, _ := nd1.CSV()
+	fmt.Printf("%s\n", x)
+	nd2 := ds.SortReverse("age")
+	x, _ = nd2.CSV()
+	fmt.Printf("%s\n", x)
 }
 
 func TestJSON(t *testing.T) {

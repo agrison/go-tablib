@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
-	//"encoding/gob"
 	"fmt"
 	"github.com/clbanning/mxj"
 	"gopkg.in/yaml.v2"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -113,10 +113,9 @@ func (d *Dataset) Column(header string) []interface{} {
 }
 
 // Filter filters a dataset, returning a fresh dataset including only the rows
-// previously tagged with one of the given tags.
+// previously tagged with one of the given tags. Returns a new Dataset.
 func (d *Dataset) Filter(tags ...string) *Dataset {
 	nd := NewDataset(d.headers)
-	nd.cols = d.cols
 	for rowIndex, rowValue := range d.data {
 		for _, filterTag := range tags {
 			if isTagged(filterTag, d.tags[rowIndex]) {
@@ -124,6 +123,56 @@ func (d *Dataset) Filter(tags ...string) *Dataset {
 			}
 		}
 	}
+	return nd
+}
+
+// Sort sorts the Dataset by a specific column. Returns a new Dataset.
+func (d *Dataset) Sort(column string) *Dataset {
+	return d.internalSort(column, false)
+}
+
+// Sort sorts the Dataset by a specific column in reverse order. Returns a new Dataset.
+func (d *Dataset) SortReverse(column string) *Dataset {
+	return d.internalSort(column, true)
+}
+
+func (d *Dataset) internalSort(column string, reverse bool) *Dataset {
+	nd := NewDataset(d.headers)
+	pairs := make([]entryPair, 0, nd.rows)
+	for i, v := range d.Column(column) {
+		pairs = append(pairs, entryPair{i, v})
+	}
+
+	var how sort.Interface
+	// sort by column
+	switch pairs[0].value.(type) {
+	case string:
+		how = byStringValue(pairs)
+	case int:
+		how = byIntValue(pairs)
+	case int64:
+		how = byInt64Value(pairs)
+	case uint64:
+		how = byUint64Value(pairs)
+	case float64:
+		how = byFloatValue(pairs)
+	case time.Time:
+		how = byTimeValue(pairs)
+	default:
+		// nothing
+	}
+
+	if !reverse {
+		sort.Sort(how)
+	} else {
+		sort.Sort(sort.Reverse(how))
+	}
+
+	// now iterate on the pairs and add the data sorted to the new dataset
+	for _, p := range pairs {
+		nd.AppendTagged(d.data[p.index], d.tags[p.index]...)
+	}
+
 	return nd
 }
 
