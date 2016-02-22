@@ -56,7 +56,7 @@ func lastNameLen(row []interface{}) interface{} {
 ds.AppendDynamicColumn("lastName length", lastNameLen)
 ds.CSV()
 // >>
-// firstName, lastName, age, sex, lastNameLen
+// firstName, lastName, age, sex, lastName length
 // John, Adams, 90, male, 5
 // George, Washington, 67, male, 10
 ```
