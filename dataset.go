@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	//"encoding/gob"
 	"fmt"
 	"github.com/clbanning/mxj"
 	"gopkg.in/yaml.v2"
@@ -15,6 +16,7 @@ import (
 type Dataset struct {
 	headers []string
 	data    [][]interface{}
+	tags    [][]string
 	rows    int
 	cols    int
 }
@@ -30,7 +32,7 @@ func NewDataset(headers []string) *Dataset {
 
 // NewDatasetWithData creates a new dataset.
 func NewDatasetWithData(headers []string, data [][]interface{}) *Dataset {
-	d := &Dataset{headers, data, len(data), len(headers)}
+	d := &Dataset{headers, data, make([][]string, 0), len(data), len(headers)}
 	return d
 }
 
@@ -42,13 +44,28 @@ func (d *Dataset) Headers() []string {
 // Append appends a row of values to the dataset.
 func (d *Dataset) Append(row []interface{}) *Dataset {
 	d.data = append(d.data, row)
+	d.tags = append(d.tags, make([]string, 0))
 	d.rows++
+	return d
+}
+
+// AppendTagged appends a row of values to the dataset with one or multiple tags
+// for filtering purposes.
+func (d *Dataset) AppendTagged(row []interface{}, tags ...string) *Dataset {
+	d.Append(row)
+	d.tags[d.rows-1] = tags[:]
 	return d
 }
 
 // AppendValues appends a row of values to the dataset.
 func (d *Dataset) AppendValues(row ...interface{}) *Dataset {
 	return d.Append(row[:])
+}
+
+// AppendValuesTagged appends a row of values to the dataset with one or multiple tags
+// for filtering purposes.
+func (d *Dataset) AppendValuesTagged(row ...interface{}) *Dataset {
+	return d.AppendTagged(row[:])
 }
 
 // AppendColumn appends a new column with values to the dataset.
@@ -66,6 +83,7 @@ func (d *Dataset) AppendColumnValues(header string, cols ...interface{}) *Datase
 	return d.AppendColumn(header, cols[:])
 }
 
+// AppendDynamicColumn appends a dynamic column to the dataset.
 func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) *Dataset {
 	d.headers = append(d.headers, header)
 	d.cols++
@@ -92,6 +110,21 @@ func (d *Dataset) Column(header string) []interface{} {
 		}
 	}
 	return values
+}
+
+// Filter filters a dataset, returning a fresh dataset including only the rows
+// previously tagged with one of the given tags.
+func (d *Dataset) Filter(tags ...string) *Dataset {
+	nd := NewDataset(d.headers)
+	nd.cols = d.cols
+	for rowIndex, rowValue := range d.data {
+		for _, filterTag := range tags {
+			if isTagged(filterTag, d.tags[rowIndex]) {
+				nd.AppendTagged(rowValue, d.tags[rowIndex]...) // copy tags
+			}
+		}
+	}
+	return nd
 }
 
 // DeleteRow deletes a row at a specific index
@@ -262,4 +295,13 @@ func (d *Dataset) Records() [][]string {
 	}
 
 	return records
+}
+
+func isTagged(tag string, tags []string) bool {
+	for _, t := range tags {
+		if t == tag {
+			return true
+		}
+	}
+	return false
 }

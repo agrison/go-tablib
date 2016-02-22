@@ -75,6 +75,34 @@ func TestDynamicColumn(t *testing.T) {
 	fmt.Printf("%s\n", x)
 }
 
+func TestTags(t *testing.T) {
+	ds := NewDataset([]string{"Maker", "Model"})
+	ds.AppendTagged([]interface{}{"Porsche", "911"}, "fast", "luxury")
+	ds.AppendTagged([]interface{}{"Skoda", "Octavia"}, "family")
+	ds.AppendTagged([]interface{}{"Ferrari", "458"}, "fast", "luxury")
+	ds.AppendValues("Citroen", "Picasso")
+	ds.AppendTagged([]interface{}{"Bentley", "Continental"}, "luxury")
+
+	luxury := ds.Filter("luxury")
+	if luxury.rows != 3 {
+		t.Errorf("Should be 3 luxury cars")
+	}
+
+	fast := ds.Filter("fast")
+	if fast.rows != 2 {
+		t.Errorf("Should be 2 fast cars")
+	}
+
+	family := ds.Filter("family")
+	if family.rows != 1 {
+		t.Errorf("Should be 1 family car")
+	}
+
+	if ds.rows != 5 {
+		t.Errorf("Should be 5 cars (original is untouched)")
+	}
+}
+
 func TestJSON(t *testing.T) {
 	ds := NewDataset([]string{"firstName", "lastName"})
 	ds.AppendValues("George", "Washington")
