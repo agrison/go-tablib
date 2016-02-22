@@ -1,7 +1,8 @@
 package tablib
 
 import (
-	"github.com/agrison/go-commons-lang/stringUtils"
+	_ "fmt"
+	"strings"
 	"testing"
 )
 
@@ -60,7 +61,7 @@ func TestDeleteColumn(t *testing.T) {
 	}
 }
 
-func TestJson(t *testing.T) {
+func TestJSON(t *testing.T) {
 	ds := NewDataset([]string{"firstName", "lastName"})
 	ds.AppendValues("George", "Washington")
 	ds.AppendValues("Henry", "Ford")
@@ -71,14 +72,25 @@ func TestJson(t *testing.T) {
 	}
 }
 
-func TestYaml(t *testing.T) {
+func TestYAML(t *testing.T) {
 	ds := NewDataset([]string{"firstName", "lastName"})
 	ds.AppendValues("George", "Washington")
 	ds.AppendValues("Henry", "Ford")
 	ds.AppendColumn("age", []interface{}{90, 67})
 	y, _ := ds.YAML()
-	if !stringUtils.Contains(y, "- age:") && !stringUtils.Contains(y, "firstName:") {
+	if !strings.Contains(y, "- age:") && !strings.Contains(y, "firstName:") {
 		t.Errorf("error Yaml()")
+	}
+}
+
+func TestXML(t *testing.T) {
+	ds := NewDataset([]string{"firstName", "lastName"})
+	ds.AppendValues("George", "Washington")
+	ds.AppendValues("Henry", "Ford")
+	ds.AppendColumn("age", []interface{}{90, 67})
+	x := ds.XML()
+	if !strings.Contains(x, "<age>") && !strings.Contains(x, "<firstName>") {
+		t.Errorf("error XML()")
 	}
 }
 
