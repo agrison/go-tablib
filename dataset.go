@@ -25,7 +25,7 @@ func NewDataset(headers []string) *Dataset {
 	return NewDatasetWithData(headers, nil)
 }
 
-// NewDataset creates a new dataset.
+// NewDatasetWithData creates a new dataset.
 func NewDatasetWithData(headers []string, data [][]interface{}) *Dataset {
 	h := list.New()
 	for _, s := range headers {
