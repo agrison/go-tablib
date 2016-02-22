@@ -131,7 +131,7 @@ func (d *Dataset) Sort(column string) *Dataset {
 	return d.internalSort(column, false)
 }
 
-// Sort sorts the Dataset by a specific column in reverse order. Returns a new Dataset.
+// SortReverse sorts the Dataset by a specific column in reverse order. Returns a new Dataset.
 func (d *Dataset) SortReverse(column string) *Dataset {
 	return d.internalSort(column, true)
 }
