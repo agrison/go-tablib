@@ -30,6 +30,11 @@ func NewDatasetWithData(headers []string, data [][]interface{}) *Dataset {
 	return d
 }
 
+// Headers return the headers of the dataset.
+func (d *Dataset) Headers() []string {
+	return d.headers
+}
+
 // Append appends a row of values to the dataset.
 func (d *Dataset) Append(row []interface{}) *Dataset {
 	d.data = append(d.data, row)
