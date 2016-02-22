@@ -41,6 +41,8 @@ func (d *Dataset) Headers() []string {
 	return d.headers
 }
 
+//func (d *Dataset) Load()
+
 // Append appends a row of values to the dataset.
 func (d *Dataset) Append(row []interface{}) *Dataset {
 	d.data = append(d.data, row)

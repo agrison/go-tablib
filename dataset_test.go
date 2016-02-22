@@ -1,7 +1,7 @@
 package tablib
 
 import (
-	"fmt"
+	_ "fmt"
 	"strings"
 	"testing"
 )
@@ -107,12 +107,31 @@ func TestSort(t *testing.T) {
 	ds.AppendValues("Henry", "Ford")
 	ds.AppendValues("Foo", "Bar")
 	ds.AppendColumn("age", []interface{}{90, 67, 83})
-	nd1 := ds.Sort("lastName")
+	/*nd1 := ds.Sort("lastName")
 	x, _ := nd1.CSV()
 	fmt.Printf("%s\n", x)
 	nd2 := ds.SortReverse("age")
 	x, _ = nd2.CSV()
-	fmt.Printf("%s\n", x)
+	fmt.Printf("%s\n", x)*/
+}
+
+func TestLoadYAML(t *testing.T) {
+	ds, _ := LoadYAML([]byte(`- age: 90
+  firstName: John
+  lastName: Adams
+- age: 67
+  firstName: George
+  lastName: Washington
+- age: 83
+  firstName: Henry
+  lastName: Ford`))
+	if ds.data[1][0] != "Washington" && ds.data[1][1] != "Washington" && ds.data[1][2] != "Washington" {
+		t.Errorf("Error loadingYAML")
+	}
+	/*fmt.Printf("%+v\n", ds.headers)
+	fmt.Printf("%+v\n", ds.data)
+	j, _ := ds.JSON()
+	fmt.Printf("JSONJSON: \n%s\n", j)*/
 }
 
 func TestJSON(t *testing.T) {
