@@ -309,6 +309,7 @@ func (d *Dataset) addXlsxSheetToFile(file *xlsx.File, sheetName string) error {
 	return nil
 }
 
+// HTML returns the HTML representation of the dataset as string.
 func (d *Dataset) HTML() string {
 	back := d.Records()
 	var b bytes.Buffer
