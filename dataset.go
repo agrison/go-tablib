@@ -353,6 +353,14 @@ func (d *Dataset) internalSort(column string, reverse bool) *Dataset {
 	return nd
 }
 
+// Transpose transposes a Dataset, turning rows into columns and vice versa,
+// returning a new Dataset instance. The first row of the original instance
+// becomes the new header row.
+// TODO
+func (d *Dataset) Transpose() *Dataset {
+	return d
+}
+
 // DeleteRow deletes a row at a specific index
 func (d *Dataset) DeleteRow(row int) error {
 	if row < 0 || row >= d.rows {
