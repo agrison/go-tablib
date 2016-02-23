@@ -44,7 +44,7 @@ func (d *Dataset) Headers() []string {
 	return d.headers
 }
 
-// width returns the number of columns in the dataset.
+// Width returns the number of columns in the dataset.
 func (d *Dataset) Width() int {
 	return d.cols
 }
@@ -83,6 +83,10 @@ func (d *Dataset) AppendValuesTagged(row ...interface{}) *Dataset {
 
 // Insert inserts a row at a given index.
 func (d *Dataset) Insert(index int, row []interface{}) *Dataset {
+	// fail silently. should maybe introduce error here
+	if index < 0 || index >= d.rows {
+		return d
+	}
 	ndata := make([][]interface{}, 0, d.rows+1)
 	ndata = append(ndata, d.data[:index]...)
 	ndata = append(ndata, row)
@@ -133,15 +137,52 @@ func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) *Dataset 
 }
 
 // InsertColumn insert a new column at a given index.
-// TODO
 func (d *Dataset) InsertColumn(index int, header string, cols []interface{}) *Dataset {
+	// fail silently. should maybe introduce error here
+	if index < 0 || index >= d.cols {
+		return d
+	}
+	d.insertHeader(index, header)
+
+	// for each row, insert the column
+	for i, r := range d.data {
+		row := make([]interface{}, 0, d.cols)
+		row = append(row, r[:index]...)
+		row = append(row, cols[i])
+		row = append(row, r[index:]...)
+		d.data[i] = row
+	}
+
 	return d
 }
 
 // InsertDynamicColumn insert a new dynamic column at a given index.
-// TODO
 func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn) *Dataset {
+	// fail silently. should maybe introduce error here
+	if index < 0 || index >= d.cols {
+		return d
+	}
+	d.insertHeader(index, header)
+
+	// for each row, insert the column
+	for i, r := range d.data {
+		row := make([]interface{}, 0, d.cols)
+		row = append(row, r[:index]...)
+		row = append(row, fn)
+		row = append(row, r[index:]...)
+		d.data[i] = row
+	}
+
 	return d
+}
+
+func (d *Dataset) insertHeader(index int, header string) {
+	headers := make([]string, 0, d.cols+1)
+	headers = append(headers, d.headers[:index]...)
+	headers = append(headers, header)
+	headers = append(headers, d.headers[index:]...)
+	d.headers = headers
+	d.cols++
 }
 
 // Stack stacks two Dataset by joining at the row level, and return new combined Dataset.

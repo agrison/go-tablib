@@ -140,8 +140,6 @@ func TestDatabook2(t *testing.T) {
 	// add the sheets to the Databook
 	db.AddSheet("Cars", cars.Sort("Year"))
 	db.AddSheet("Presidents", presidents.SortReverse("Age"))
-
-	fmt.Println(db.HTML())
 }
 
 func TestSort(t *testing.T) {
@@ -166,6 +164,15 @@ func TestInsert(t *testing.T) {
 	ds.AppendValues("Foo", "Bar")
 	ds.AppendColumn("age", []interface{}{90, 67, 83})
 	ds.Insert(1, []interface{}{"Alex", "Kid"})
+}
+
+func TestInsertColumn(t *testing.T) {
+	ds := NewDataset([]string{"firstName", "lastName"})
+	ds.AppendValues("George", "Washington")
+	ds.AppendValues("Henry", "Ford")
+	ds.AppendValues("Foo", "Bar")
+	ds.InsertColumn(2, "age", []interface{}{90, 67, 83})
+	ds.InsertDynamicColumn(10, "foo", lastNameLen)
 
 	fmt.Println(ds.HTML())
 }
