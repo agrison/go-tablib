@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/clbanning/mxj"
+	"github.com/tealeg/xlsx"
 	"gopkg.in/yaml.v2"
 	"sort"
 	"strconv"
@@ -274,6 +275,64 @@ func (d *Dataset) YAML() (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+// XLSX exports the Dataset as a byte array representing the .xlsx format.
+func (d *Dataset) XLSX() ([]byte, error) {
+	file := xlsx.NewFile()
+	if err := d.addXlsxSheetToFile(file, "Sheet 1"); err != nil {
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	file.Write(&b)
+	return b.Bytes(), nil
+}
+
+func (d *Dataset) addXlsxSheetToFile(file *xlsx.File, sheetName string) error {
+	sheet, err := file.AddSheet(sheetName)
+	if err != nil {
+		return nil
+	}
+
+	back := d.Records()
+	for i, r := range back {
+		row := sheet.AddRow()
+		for _, c := range r {
+			cell := row.AddCell()
+			cell.Value = c
+			if i == 0 {
+				cell.GetStyle().Font.Bold = true
+			}
+		}
+	}
+	return nil
+}
+
+func (d *Dataset) HTML() string {
+	back := d.Records()
+	var b bytes.Buffer
+
+	b.WriteString("<table class=\"table\">\n\t<thead>")
+	for i, r := range back {
+		b.WriteString("\n\t\t<tr>")
+		for _, c := range r {
+			tag := "td"
+			if i == 0 {
+				tag = "th"
+			}
+			b.WriteString("\n\t\t\t<" + tag + ">")
+			b.WriteString(c)
+			b.WriteString("</" + tag + ">")
+		}
+		b.WriteString("\n\t\t</tr>")
+		if i == 0 {
+			b.WriteString("\n\t</thead>\n\t<tbody>\n\t")
+		}
+	}
+	b.WriteString("\n\t</tbody>\n</table>")
+
+	return b.String()
 }
 
 func indexOfColumn(header string, d *Dataset) int {

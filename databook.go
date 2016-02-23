@@ -1,6 +1,8 @@
 package tablib
 
 import (
+	"bytes"
+	"github.com/tealeg/xlsx"
 	"gopkg.in/yaml.v2"
 )
 
@@ -77,4 +79,17 @@ func (d *Databook) YAML() (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+// XLSX returns a XLSX representation of the databook as a byte array.
+func (d *Databook) XLSX() ([]byte, error) {
+	file := xlsx.NewFile()
+
+	for _, s := range d.sheets {
+		s.dataset.addXlsxSheetToFile(file, s.title)
+	}
+
+	var b bytes.Buffer
+	file.Write(&b)
+	return b.Bytes(), nil
 }

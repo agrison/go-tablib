@@ -1,7 +1,7 @@
 package tablib
 
 import (
-	_ "fmt"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -73,6 +73,24 @@ func TestDynamicColumn(t *testing.T) {
 	ds.AppendDynamicColumn("Name length", lastNameLen)
 }
 
+func TestDatabook(t *testing.T) {
+	db := NewDatabook()
+	ds := NewDataset([]string{"Maker", "Model"})
+	ds.AppendTagged([]interface{}{"Porsche", "911"}, "fast", "luxury")
+	ds.AppendTagged([]interface{}{"Skoda", "Octavia"}, "family")
+	ds.AppendTagged([]interface{}{"Ferrari", "458"}, "fast", "luxury")
+	ds.AppendValues("Citroen", "Picasso")
+	ds.AppendTagged([]interface{}{"Bentley", "Continental"}, "luxury")
+	db.AddSheet("Cars", ds)
+
+	ds1 := NewDataset([]string{"firstName", "lastName"})
+	ds1.AppendValues("George", "Washington")
+	ds1.AppendValues("Henry", "Ford")
+	ds1.AppendColumn("age", []interface{}{90, 67, 83})
+	ds1.AppendDynamicColumn("Name length", lastNameLen)
+	db.AddSheet("Presidents", ds1)
+}
+
 func TestTags(t *testing.T) {
 	ds := NewDataset([]string{"Maker", "Model"})
 	ds.AppendTagged([]interface{}{"Porsche", "911"}, "fast", "luxury")
@@ -107,6 +125,8 @@ func TestSort(t *testing.T) {
 	ds.AppendValues("Henry", "Ford")
 	ds.AppendValues("Foo", "Bar")
 	ds.AppendColumn("age", []interface{}{90, 67, 83})
+
+	fmt.Printf("%s\n", ds.HTML())
 	/*nd1 := ds.Sort("lastName")
 	x, _ := nd1.CSV()
 	fmt.Printf("%s\n", x)

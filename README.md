@@ -15,6 +15,7 @@ Output formats supported:
 
 * JSON (Sets + Books)
 * YAML (Sets + Books)
+* XLSX (Sets + Books)
 * XML (Sets + Books)
 * TSV (Sets)
 * CSV (Sets)
@@ -152,68 +153,126 @@ ds, _ := LoadYAML([]byte(`- age: 90
 ```go
 json, _ := ds.JSON()
 fmt.Printf("%s\n", json)
-// >>>
-// [{"age":90,"firstName":"John","lastName":"Adams"},{"age":67,"firstName":"George","lastName":"Washington"},{"age":83,"firstName":"Henry","lastName":"Ford"}]
+```
+
+Will output:
+```json
+[{"age":90,"firstName":"John","lastName":"Adams"},{"age":67,"firstName":"George","lastName":"Washington"},{"age":83,"firstName":"Henry","lastName":"Ford"}]
 ```
 
 ### XML
 ```go
 xml := ds.XML()
 fmt.Printf("%s\n", xml)
-// >>>
-// <dataset>
-//   <row>
-//     <age>90</age>
-//     <firstName>John</firstName>
-//     <lastName>Adams</lastName>
-//   </row>  <row>
-//     <age>67</age>
-//     <firstName>George</firstName>
-//     <lastName>Washington</lastName>
-//   </row>  <row>
-//     <age>83</age>
-//     <firstName>Henry</firstName>
-//     <lastName>Ford</lastName>
-//   </row>
-// </dataset>
+```
+
+Will ouput:
+```xml
+<dataset>
+ <row>
+   <age>90</age>
+   <firstName>John</firstName>
+   <lastName>Adams</lastName>
+ </row>  <row>
+   <age>67</age>
+   <firstName>George</firstName>
+   <lastName>Washington</lastName>
+ </row>  <row>
+   <age>83</age>
+   <firstName>Henry</firstName>
+   <lastName>Ford</lastName>
+ </row>
+</dataset>
 ```
 
 ### CSV
 ```go
 csv, _ := ds.CSV()
 fmt.Printf("%s\n", csv)
-// >>>
-// firstName,lastName,age
-// John,Adams,90
-// George,Washington,67
-// Henry,Ford,83
+```
+
+Will ouput:
+```csv
+firstName,lastName,age
+John,Adams,90
+George,Washington,67
+Henry,Ford,83
 ```
 
 ### TSV
 ```go
 tsv, _ := ds.TSV()
 fmt.Printf("%s\n", tsv)
-// >>>
-// firstName  lastName  age
-// John Adams 90
-// George Washington  67
-// Henry  Ford  83
+```
+
+Will ouput:
+```tsv
+firstName lastName  age
+John  Adams  90
+George  Washington  67
+Henry Ford 83
 ```
 
 ### YAML
 ```go
 yaml, _ := ds.YAML()
 fmt.Printf("%s\n", yaml)
+```
+
+Will ouput:
+```yaml
+- age: 90
+  firstName: John
+  lastName: Adams
+- age: 67
+  firstName: George
+  lastName: Washington
+- age: 83
+  firstName: Henry
+  lastName: Ford
+```
+
+### HTML
+```go
+html := ds.HTML()
+fmt.Printf("%s\n", html)
+```
+
+Will output:
+```html
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>firstName</th>
+			<th>lastName</th>
+			<th>age</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>George</td>
+			<td>Washington</td>
+			<td>90</td>
+		</tr>
+		<tr>
+			<td>Henry</td>
+			<td>Ford</td>
+			<td>67</td>
+		</tr>
+		<tr>
+			<td>Foo</td>
+			<td>Bar</td>
+			<td>83</td>
+		</tr>
+	</tbody>
+</table>
+```
+
+### XLSX
+```go
+xlsx, _ := ds.XLSX()
 // >>>
-// - age: 90
-//   firstName: John
-//   lastName: Adams
-// - age: 67
-//   firstName: George
-//   lastName: Washington
-// - age: 83
-//   firstName: Henry
-//   lastName: Ford
+// binary content
 ```
 
 ## Installation
