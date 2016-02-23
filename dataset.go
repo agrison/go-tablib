@@ -43,13 +43,13 @@ func (d *Dataset) Headers() []string {
 	return d.headers
 }
 
-// ColumnCount returns the number of columns in the dataset.
-func (d *Dataset) ColumnCount() int {
+// width returns the number of columns in the dataset.
+func (d *Dataset) Width() int {
 	return d.cols
 }
 
-// RowCount returns the number of rows in the dataset.
-func (d *Dataset) RowCount() int {
+// Height returns the number of rows in the dataset.
+func (d *Dataset) Height() int {
 	return d.rows
 }
 
@@ -78,6 +78,32 @@ func (d *Dataset) AppendValues(row ...interface{}) *Dataset {
 // for filtering purposes.
 func (d *Dataset) AppendValuesTagged(row ...interface{}) *Dataset {
 	return d.AppendTagged(row[:])
+}
+
+// Insert inserts a row at a given index.
+func (d *Dataset) Insert(index int, row []interface{}) *Dataset {
+	ndata := make([][]interface{}, 0, d.rows)
+	ndata = append(ndata, d.data[:index]...)
+	ndata = append(ndata, row)
+	ndata = append(ndata, d.data[index+1:]...)
+	d.data = ndata
+	d.rows++
+
+	ntags := make([][]string, 0, d.rows)
+	ntags = append(ntags, d.tags[:index]...)
+	ntags = append(ntags, make([]string, 0))
+	ntags = append(ntags, d.tags[index+1:]...)
+	d.tags = ntags
+
+	return d
+}
+
+// InsertTagged inserts a row at a given index with specific tags.
+func (d *Dataset) InsertTagged(index int, row []interface{}, tags ...string) *Dataset {
+	d.Insert(index, row)
+	d.tags[index] = tags[:]
+
+	return d
 }
 
 // AppendColumn appends a new column with values to the dataset.
