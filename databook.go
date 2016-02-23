@@ -93,3 +93,16 @@ func (d *Databook) XLSX() ([]byte, error) {
 	file.Write(&b)
 	return b.Bytes(), nil
 }
+
+// HTML returns a HTML representation of the databook as a byte array.
+func (d *Databook) HTML() string {
+	var b bytes.Buffer
+
+	for _, s := range d.sheets {
+		b.WriteString("<h1>" + s.title + "</h1>\n")
+		b.WriteString(s.dataset.HTML())
+		b.WriteString("\n\n")
+	}
+
+	return b.String()
+}

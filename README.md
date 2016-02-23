@@ -283,8 +283,8 @@ go get github.com/agrison/go-tablib
 
 ## TODO
 
-* Loading
-* Support DBF, XLS, HTML, LATEX, ...
+* Loading in more formats
+* Support more formats: DBF, XLS, LATEX, ...
 
 ## Contribute
 PRs more than welcomed, come and join :)
