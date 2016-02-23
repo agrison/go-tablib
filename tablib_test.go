@@ -112,9 +112,20 @@ func lastNameB64(row []interface{}) interface{} {
 
 func (s *TablibSuite) TestDynamicColumn(c *C) {
 	ds := presidentDataset()
-	ds.AppendDynamicColumn("lastB64", lastNameB64)
-	d := ds.Column("lastB64")
-	c.Assert(d[0], Equals, "Sm9obg==")
-	c.Assert(d[1], Equals, "R2Vvcmdl")
-	c.Assert(d[2], Equals, "VGhvbWFz")
+	ds.AppendDynamicColumn("firstB64", firstNameB64)
+	d := ds.Column("firstB64")
+	c.Assert(d[0], Equals, "Sm9obg==") // John
+	c.Assert(d[1], Equals, "R2Vvcmdl") // George
+	c.Assert(d[2], Equals, "VGhvbWFz") // Thomas
+
+	// invalid index
+	c.Assert(ds.InsertDynamicColumn(-1, "foo", lastNameB64), Equals, tablib.ErrInvalidColumnIndex)
+	c.Assert(ds.InsertDynamicColumn(100, "foo", lastNameB64), Equals, tablib.ErrInvalidColumnIndex)
+	// ok
+	c.Assert(ds.InsertDynamicColumn(2, "lastB64", lastNameB64), Equals, nil)
+	// check values
+	d = ds.Column("lastB64")
+	c.Assert(d[0], Equals, "QWRhbXM=")         // Adams
+	c.Assert(d[1], Equals, "V2FzaGluZ3Rvbg==") // Washington
+	c.Assert(d[2], Equals, "SmVmZmVyc29u")     // Jefferson
 }
