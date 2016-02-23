@@ -19,6 +19,7 @@ Output formats supported:
 * XML (Sets + Books)
 * TSV (Sets)
 * CSV (Sets)
+* ASCII (Sets)
 
 ## Overview
 
@@ -275,6 +276,44 @@ xlsx, _ := ds.XLSX()
 // binary content
 ```
 
+### ASCII
+
+#### Grid format
+```go
+ascii := ds.Tabular("grid")
+```
+
+Will output:
+```
++--------------+---------------+--------+
+|    firstName |      lastName |    age |
++==============+===============+========+
+|       George |    Washington |     90 |
++--------------+---------------+--------+
+|        Henry |          Ford |     67 |
++--------------+---------------+--------+
+|          Foo |           Bar |     83 |
++--------------+---------------+--------+
+```
+
+#### Simple format
+```go
+ascii := ds.Tabular("simple")
+```
+
+Will output:
+```
+--------------  ---------------  --------
+    firstName         lastName       age
+--------------  ---------------  --------
+       George       Washington        90
+
+        Henry             Ford        67
+
+          Foo              Bar        83
+--------------  ---------------  --------
+```
+
 ## Installation
 
 ```bash
@@ -288,3 +327,7 @@ go get github.com/agrison/go-tablib
 
 ## Contribute
 PRs more than welcomed, come and join :)
+
+## Acknowledgement
+
+Thanks to kennethreitz for the first implementation in Python, [`github.com/bndr/gotabulate`](https://github.com/bndr/gotabulate), [`github.com/clbanning/mxj`](https://github.com/clbanning/mxj), [`github.com/tealeg/xlsx`](https://github.com/tealeg/xlsx), [`gopkg.in/yaml.v2`](https://gopkg.in/yaml.v2)

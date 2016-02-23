@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"github.com/bndr/gotabulate"
 	"github.com/clbanning/mxj"
 	"github.com/tealeg/xlsx"
 	"gopkg.in/yaml.v2"
@@ -334,6 +335,15 @@ func (d *Dataset) HTML() string {
 	b.WriteString("\n\t</tbody>\n</table>")
 
 	return b.String()
+}
+
+// Tabular returns a tabular string representation of the dataset.
+// format is either grid or simple.
+func (d *Dataset) Tabular(format string) string {
+	back := d.Records()
+	t := gotabulate.Create(back)
+
+	return t.Render(format)
 }
 
 func indexOfColumn(header string, d *Dataset) int {

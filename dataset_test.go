@@ -127,6 +127,9 @@ func TestSort(t *testing.T) {
 	ds.AppendColumn("age", []interface{}{90, 67, 83})
 
 	fmt.Printf("%s\n", ds.HTML())
+
+	fmt.Printf("%s\n", ds.Tabular("grid"))
+	fmt.Printf("%s\n", ds.Tabular("simple"))
 	/*nd1 := ds.Sort("lastName")
 	x, _ := nd1.CSV()
 	fmt.Printf("%s\n", x)
