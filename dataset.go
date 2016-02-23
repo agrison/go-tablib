@@ -29,9 +29,15 @@ type Dataset struct {
 type DynamicColumn func([]interface{}) interface{}
 
 var (
-	ErrInvalidDimensions  = errors.New("tablib: Invalid dimension")
+	// ErrInvalidDimensions is returned when trying to append/insert too much
+	// or not enough values to a row or column
+	ErrInvalidDimensions = errors.New("tablib: Invalid dimension")
+	// ErrInvalidColumnIndex is returned when trying to insert a column at an
+	// invalid index
 	ErrInvalidColumnIndex = errors.New("tablib: Invalid column index")
-	ErrInvalidRowIndex    = errors.New("tablib: Invalid row index")
+	// ErrInvalidRowIndex is returned when trying to insert a row at an
+	// invalid index
+	ErrInvalidRowIndex = errors.New("tablib: Invalid row index")
 )
 
 // NewDataset creates a new dataset.
