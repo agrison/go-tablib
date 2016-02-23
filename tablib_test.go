@@ -21,6 +21,14 @@ func presidentDataset() *tablib.Dataset {
 	return ds
 }
 
+func presidentDatasetWithTags() *tablib.Dataset {
+	ds := tablib.NewDataset([]string{"firstName", "lastName", "gpa"})
+	ds.AppendTagged([]interface{}{"John", "Adams", 90}, "Massachusetts")
+	ds.AppendTagged([]interface{}{"George", "Washington", 67}, "Virginia")
+	ds.AppendTagged([]interface{}{"Thomas", "Jefferson", 50}, "Virginia")
+	return ds
+}
+
 func frenhPresidentDataset() *tablib.Dataset {
 	ds := tablib.NewDataset([]string{"firstName", "lastName", "gpa"})
 	ds.AppendValues("Jacques", "Chirac", 88)
@@ -176,4 +184,26 @@ func (s *TablibSuite) TestStackColumn(c *C) {
 	x.DeleteRow(x.Height() - 1)
 	ds, err := frenhPresidentDataset().StackColumn(x)
 	c.Assert(err, Equals, tablib.ErrInvalidDimensions)
+}
+
+func (s *TablibSuite) TestFiltering(c *C) {
+	ds := presidentDatasetWithTags()
+	df := ds.Filter("Massachusetts")
+	c.Assert(df.Height(), Equals, 1)
+	r := lastRow(df)
+	c.Assert(r["firstName"], Equals, "John")
+	c.Assert(r["lastName"], Equals, "Adams")
+
+	df = ds.Filter("Virginia")
+	c.Assert(df.Height(), Equals, 2)
+	r = rowAt(df, 0)
+	c.Assert(r["firstName"], Equals, "George")
+	c.Assert(r["lastName"], Equals, "Washington")
+	r = rowAt(df, 1)
+	c.Assert(r["firstName"], Equals, "Thomas")
+	c.Assert(r["lastName"], Equals, "Jefferson")
+
+	df = ds.Filter("Woot")
+	c.Assert(df.Height(), Equals, 0)
+	c.Assert(df.Width(), Equals, 3)
 }
