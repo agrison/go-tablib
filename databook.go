@@ -48,8 +48,8 @@ func (d *Databook) AddSheet(title string, dataset *Dataset) *Databook {
 	return d
 }
 
-// SheetCount returns the number of sheets in the databook.
-func (d *Databook) SheetCount() int {
+// Size returns the number of sheets in the databook.
+func (d *Databook) Size() int {
 	return len(d.sheets)
 }
 
