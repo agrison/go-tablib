@@ -207,3 +207,137 @@ func (s *TablibSuite) TestFiltering(c *C) {
 	c.Assert(df.Height(), Equals, 0)
 	c.Assert(df.Width(), Equals, 3)
 }
+
+func (s *TablibSuite) TestSort(c *C) {
+	ds := presidentDataset().Sort("gpa")
+	c.Assert(ds.Height(), Equals, 3)
+
+	r := rowAt(ds, 0)
+	c.Assert(r["firstName"], Equals, "Thomas")
+	c.Assert(r["lastName"], Equals, "Jefferson")
+	c.Assert(r["gpa"], Equals, 50)
+
+	r = rowAt(ds, 1)
+	c.Assert(r["firstName"], Equals, "George")
+	c.Assert(r["lastName"], Equals, "Washington")
+	c.Assert(r["gpa"], Equals, 67)
+
+	r = rowAt(ds, 2)
+	c.Assert(r["firstName"], Equals, "John")
+	c.Assert(r["lastName"], Equals, "Adams")
+	c.Assert(r["gpa"], Equals, 90)
+
+	ds = ds.SortReverse("lastName")
+	c.Assert(ds.Height(), Equals, 3)
+
+	r = rowAt(ds, 0)
+	c.Assert(r["firstName"], Equals, "George")
+	c.Assert(r["lastName"], Equals, "Washington")
+
+	r = rowAt(ds, 1)
+	c.Assert(r["firstName"], Equals, "Thomas")
+	c.Assert(r["lastName"], Equals, "Jefferson")
+
+	r = rowAt(ds, 2)
+	c.Assert(r["firstName"], Equals, "John")
+	c.Assert(r["lastName"], Equals, "Adams")
+}
+
+func (s *TablibSuite) TestJSON(c *C) {
+	ds := frenhPresidentDataset()
+	j, _ := ds.JSON()
+	c.Assert(j, Equals, "[{\"firstName\":\"Jacques\",\"gpa\":88,\"lastName\":\"Chirac\"},{\"firstName\":\"Nicolas\",\"gpa\":98,\"lastName\":\"Sarkozy\"},{\"firstName\":\"François\",\"gpa\":34,\"lastName\":\"Hollande\"}]")
+}
+
+func (s *TablibSuite) TestYAML(c *C) {
+	ds := frenhPresidentDataset()
+	j, _ := ds.YAML()
+	c.Assert(j, Equals, `- firstName: Jacques
+  gpa: 88
+  lastName: Chirac
+- firstName: Nicolas
+  gpa: 98
+  lastName: Sarkozy
+- firstName: François
+  gpa: 34
+  lastName: Hollande
+`)
+}
+
+func (s *TablibSuite) TestCSV(c *C) {
+	ds := frenhPresidentDataset()
+	j, _ := ds.CSV()
+	c.Assert(j, Equals, `firstName,lastName,gpa
+Jacques,Chirac,88
+Nicolas,Sarkozy,98
+François,Hollande,34
+`)
+}
+
+func (s *TablibSuite) TestTSV(c *C) {
+	ds := frenhPresidentDataset()
+	j, _ := ds.TSV()
+	c.Assert(j, Equals, `firstName`+"\t"+`lastName`+"\t"+`gpa
+Jacques`+"\t"+`Chirac`+"\t"+`88
+Nicolas`+"\t"+`Sarkozy`+"\t"+`98
+François`+"\t"+`Hollande`+"\t"+`34
+`)
+}
+
+func (s *TablibSuite) TestHTML(c *C) {
+	ds := frenhPresidentDataset()
+	j := ds.HTML()
+	c.Assert(j, Equals, `<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>firstName</th>
+			<th>lastName</th>
+			<th>gpa</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>Jacques</td>
+			<td>Chirac</td>
+			<td>88</td>
+		</tr>
+		<tr>
+			<td>Nicolas</td>
+			<td>Sarkozy</td>
+			<td>98</td>
+		</tr>
+		<tr>
+			<td>François</td>
+			<td>Hollande</td>
+			<td>34</td>
+		</tr>
+	</tbody>
+</table>`)
+}
+
+func (s *TablibSuite) TestTabular(c *C) {
+	ds := frenhPresidentDataset()
+	j := ds.Tabular("grid")
+	c.Assert(j, Equals, `+--------------+-------------+--------+
+|    firstName |    lastName |    gpa |
++==============+=============+========+
+|      Jacques |      Chirac |     88 |
++--------------+-------------+--------+
+|      Nicolas |     Sarkozy |     98 |
++--------------+-------------+--------+
+|     François |    Hollande |     34 |
++--------------+-------------+--------+
+`)
+
+	j = ds.Tabular("simple")
+	c.Assert(j, Equals, `--------------  -------------  --------`+"\n"+
+		`    firstName       lastName       gpa `+"\n"+
+		`--------------  -------------  --------`+"\n"+
+		`      Jacques         Chirac        88 `+"\n"+
+		"\n"+
+		`      Nicolas        Sarkozy        98 `+"\n"+
+		"\n"+
+		`     François       Hollande        34 `+"\n"+
+		`--------------  -------------  --------`+
+		"\n")
+}

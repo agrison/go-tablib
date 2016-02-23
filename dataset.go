@@ -502,7 +502,7 @@ func (d *Dataset) HTML() string {
 		}
 		b.WriteString("\n\t\t</tr>")
 		if i == 0 {
-			b.WriteString("\n\t</thead>\n\t<tbody>\n\t")
+			b.WriteString("\n\t</thead>\n\t<tbody>")
 		}
 	}
 	b.WriteString("\n\t</tbody>\n</table>")

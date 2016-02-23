@@ -1,7 +1,6 @@
 package tablib
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -173,8 +172,6 @@ func TestInsertColumn(t *testing.T) {
 	ds.AppendValues("Foo", "Bar")
 	ds.InsertColumn(2, "age", []interface{}{90, 67, 83})
 	ds.InsertDynamicColumn(10, "foo", lastNameLen)
-
-	fmt.Println(ds.HTML())
 }
 
 func TestLoadYAML(t *testing.T) {
