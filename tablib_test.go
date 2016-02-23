@@ -1,6 +1,7 @@
 package tablib_test
 
 import (
+	"encoding/base64"
 	tablib "github.com/agrison/go-tablib"
 	. "gopkg.in/check.v1"
 	"testing"
@@ -99,4 +100,21 @@ func (s *TablibSuite) TestInsertColumn(c *C) {
 	c.Assert(d[0], Equals, "foo")
 	c.Assert(d[1], Equals, "bar")
 	c.Assert(d[2], Equals, "baz")
+}
+
+func firstNameB64(row []interface{}) interface{} {
+	return base64.StdEncoding.EncodeToString([]byte(row[0].(string)))
+}
+
+func lastNameB64(row []interface{}) interface{} {
+	return base64.StdEncoding.EncodeToString([]byte(row[1].(string)))
+}
+
+func (s *TablibSuite) TestDynamicColumn(c *C) {
+	ds := presidentDataset()
+	ds.AppendDynamicColumn("lastB64", lastNameB64)
+	d := ds.Column("lastB64")
+	c.Assert(d[0], Equals, "Sm9obg==")
+	c.Assert(d[1], Equals, "R2Vvcmdl")
+	c.Assert(d[2], Equals, "VGhvbWFz")
 }
