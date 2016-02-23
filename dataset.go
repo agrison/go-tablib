@@ -358,7 +358,7 @@ func (d *Dataset) internalSort(column string, reverse bool) *Dataset {
 // becomes the new header row.
 // TODO
 func (d *Dataset) Transpose() *Dataset {
-	return d
+	panic("Transpose() not yet implemented")
 }
 
 // DeleteRow deletes a row at a specific index
