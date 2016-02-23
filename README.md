@@ -11,7 +11,7 @@
 Go-Tablib is a format-agnostic tabular dataset library, written in Go.
 This is a port of the famous Python's [tablib](https://github.com/kennethreitz/tablib) by Kenneth Reitz.
 
-Output formats supported:
+Export formats supported:
 
 * JSON (Sets + Books)
 * YAML (Sets + Books)
@@ -20,6 +20,12 @@ Output formats supported:
 * TSV (Sets)
 * CSV (Sets)
 * ASCII (Sets)
+
+Loading formats supported:
+
+* JSON (Sets)
+* YAML (Sets)
+
 
 ## Overview
 
