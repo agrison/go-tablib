@@ -12,6 +12,16 @@ type Sheet struct {
 	dataset *Dataset
 }
 
+// Title return the title of the sheet.
+func (s Sheet) Title() string {
+	return s.title
+}
+
+// Dataset returns the dataset of the sheet.
+func (s Sheet) Dataset() *Dataset {
+	return s.dataset
+}
+
 // Databook represents a Databook which is an array of sheets.
 type Databook struct {
 	sheets map[string]Sheet
@@ -38,6 +48,11 @@ func (d *Databook) AddSheet(title string, dataset *Dataset) *Databook {
 	return d
 }
 
+// SheetCount returns the number of sheets in the databook.
+func (d *Databook) SheetCount() int {
+	return len(d.sheets)
+}
+
 // JSON returns a JSON representation of the databook as string.
 func (d *Databook) JSON() (string, error) {
 	str := "["
@@ -49,7 +64,7 @@ func (d *Databook) JSON() (string, error) {
 		}
 		str += js + "},"
 	}
-	str += str[:len(str)-1] + "]"
+	str = str[:len(str)-1] + "]"
 	return str, nil
 }
 

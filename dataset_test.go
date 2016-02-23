@@ -119,6 +119,31 @@ func TestTags(t *testing.T) {
 	}
 }
 
+func TestDatabook2(t *testing.T) {
+	db := NewDatabook()
+
+	// a dataset of presidents
+	presidents, _ := LoadJSON([]byte(`[
+    {"Age":90,"First name":"John","Last name":"Adams"},
+    {"Age":67,"First name":"George","Last name":"Washington"},
+    {"Age":83,"First name":"Henry","Last name":"Ford"}
+  ]`))
+
+	// a dataset of cars
+	cars := NewDataset([]string{"Maker", "Model", "Year"})
+	cars.AppendValues("Porsche", "991", 2012)
+	cars.AppendValues("Skoda", "Octavia", 2011)
+	cars.AppendValues("Ferrari", "458", 2009)
+	cars.AppendValues("Citroen", "Picasso II", 2013)
+	cars.AppendValues("Bentley", "Continental GT", 2003)
+
+	// add the sheets to the Databook
+	db.AddSheet("Cars", cars.Sort("Year"))
+	db.AddSheet("Presidents", presidents.SortReverse("Age"))
+
+	fmt.Println(db.HTML())
+}
+
 func TestSort(t *testing.T) {
 	ds := NewDataset([]string{"firstName", "lastName"})
 	ds.AppendValues("George", "Washington")
@@ -126,10 +151,6 @@ func TestSort(t *testing.T) {
 	ds.AppendValues("Foo", "Bar")
 	ds.AppendColumn("age", []interface{}{90, 67, 83})
 
-	fmt.Printf("%s\n", ds.HTML())
-
-	fmt.Printf("%s\n", ds.Tabular("grid"))
-	fmt.Printf("%s\n", ds.Tabular("simple"))
 	/*nd1 := ds.Sort("lastName")
 	x, _ := nd1.CSV()
 	fmt.Printf("%s\n", x)

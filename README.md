@@ -112,7 +112,7 @@ ds.AppendValues("Porsche", "991", 2012)
 ds.AppendValues("Skoda", "Octavia", 2011)
 ds.AppendValues("Ferrari", "458", 2009)
 ds.AppendValues("Citroen", "Picasso II", 2013)
-ds.AppendValues("Bentley", "Continental GT"}, 2003)
+ds.AppendValues("Bentley", "Continental GT", 2003)
 
 ds.Sort("Year").CSV()
 // >>
@@ -312,6 +312,59 @@ Will output:
 
           Foo              Bar        83
 --------------  ---------------  --------
+```
+
+## Databooks
+
+This is an example of how to use Databooks.
+
+```go
+db := NewDatabook()
+
+// a dataset of presidents
+presidents, _ := LoadJSON([]byte(`[
+  {"Age":90,"First name":"John","Last name":"Adams"},
+  {"Age":67,"First name":"George","Last name":"Washington"},
+  {"Age":83,"First name":"Henry","Last name":"Ford"}
+]`))
+
+// a dataset of cars
+cars := NewDataset([]string{"Maker", "Model", "Year"})
+cars.AppendValues("Porsche", "991", 2012)
+cars.AppendValues("Skoda", "Octavia", 2011)
+cars.AppendValues("Ferrari", "458", 2009)
+cars.AppendValues("Citroen", "Picasso II", 2013)
+cars.AppendValues("Bentley", "Continental GT", 2003)
+
+// add the sheets to the Databook
+db.AddSheet("Cars", cars.Sort("Year"))
+db.AddSheet("Presidents", presidents.SortReverse("Age"))
+
+fmt.Println(db.JSON())
+```
+
+Will output the following JSON representation of the Databook:
+```json
+[
+  {
+    "title": "Cars",
+    "data": [
+      {"Maker":"Bentley","Model":"Continental GT","Year":2003},
+      {"Maker":"Ferrari","Model":"458","Year":2009},
+      {"Maker":"Skoda","Model":"Octavia","Year":2011},
+      {"Maker":"Porsche","Model":"991","Year":2012},
+      {"Maker":"Citroen","Model":"Picasso II","Year":2013}
+    ]
+  },
+  {
+    "title": "Presidents",
+    "data": [
+      {"Age":90,"First name":"John","Last name":"Adams"},
+      {"Age":83,"First name":"Henry","Last name":"Ford"},
+      {"Age":67,"First name":"George","Last name":"Washington"}
+    ]
+  }
+]
 ```
 
 ## Installation
