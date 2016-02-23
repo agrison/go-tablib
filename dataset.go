@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/bndr/gotabulate"
 	"github.com/clbanning/mxj"
@@ -141,6 +142,55 @@ func (d *Dataset) InsertColumn(index int, header string, cols []interface{}) *Da
 // TODO
 func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn) *Dataset {
 	return d
+}
+
+// Stack stacks two Dataset by joining at the row level, and return new combined Dataset.
+func (d *Dataset) Stack(other *Dataset) (*Dataset, error) {
+	if d.Width() != other.Width() {
+		return nil, errors.New("The two datasets don't have the same number of columns.")
+	}
+
+	nd := NewDataset(d.headers)
+	nd.cols = d.cols
+	nd.rows = d.rows + other.rows
+
+	nd.tags = make([][]string, 0, nd.rows)
+	nd.tags = append(nd.tags, d.tags...)
+	nd.tags = append(nd.tags, other.tags...)
+
+	nd.data = make([][]interface{}, 0, nd.rows)
+	nd.data = append(nd.data, d.data...)
+	nd.data = append(nd.data, other.data...)
+
+	return nd, nil
+}
+
+// StackColumn stacks two Dataset by joining them at the column level, and return new combined Dataset.
+func (d *Dataset) StackColumn(other *Dataset) (*Dataset, error) {
+	if d.Height() != other.Height() {
+		return nil, errors.New("The two datasets don't have the same number of rows.")
+	}
+
+	nheaders := d.headers
+	nheaders = append(nheaders, other.headers...)
+
+	nd := NewDataset(nheaders)
+	nd.cols = d.cols + nd.cols
+	nd.rows = d.rows
+	nd.data = make([][]interface{}, 0, nd.rows)
+	nd.tags = make([][]string, 0, nd.rows)
+
+	for i := range d.data {
+		nd.data[i] = make([]interface{}, 0, nd.cols)
+		nd.data[i] = append(nd.data[i], d.data[i]...)
+		nd.data[i] = append(nd.data[i], other.data[i]...)
+
+		nd.tags[i] = make([]string, 0, nd.cols)
+		nd.tags[i] = append(nd.tags[i], d.tags[i]...)
+		nd.tags[i] = append(nd.tags[i], other.tags[i]...)
+	}
+
+	return nd, nil
 }
 
 // Column returns all the values for a specific column
