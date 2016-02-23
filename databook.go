@@ -53,6 +53,13 @@ func (d *Databook) Size() int {
 	return len(d.sheets)
 }
 
+// Wipe removes all Dataset objects from the Databook.
+func (d *Databook) Wipe() {
+	for k := range d.sheets {
+		delete(d.sheets, k)
+	}
+}
+
 // JSON returns a JSON representation of the databook as string.
 func (d *Databook) JSON() (string, error) {
 	str := "["
