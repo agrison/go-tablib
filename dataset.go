@@ -82,17 +82,17 @@ func (d *Dataset) AppendValuesTagged(row ...interface{}) *Dataset {
 
 // Insert inserts a row at a given index.
 func (d *Dataset) Insert(index int, row []interface{}) *Dataset {
-	ndata := make([][]interface{}, 0, d.rows)
+	ndata := make([][]interface{}, 0, d.rows+1)
 	ndata = append(ndata, d.data[:index]...)
 	ndata = append(ndata, row)
-	ndata = append(ndata, d.data[index+1:]...)
+	ndata = append(ndata, d.data[index:]...)
 	d.data = ndata
 	d.rows++
 
-	ntags := make([][]string, 0, d.rows)
+	ntags := make([][]string, 0, d.rows+1)
 	ntags = append(ntags, d.tags[:index]...)
 	ntags = append(ntags, make([]string, 0))
-	ntags = append(ntags, d.tags[index+1:]...)
+	ntags = append(ntags, d.tags[index:]...)
 	d.tags = ntags
 
 	return d

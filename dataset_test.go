@@ -159,6 +159,17 @@ func TestSort(t *testing.T) {
 	fmt.Printf("%s\n", x)*/
 }
 
+func TestInsert(t *testing.T) {
+	ds := NewDataset([]string{"firstName", "lastName"})
+	ds.AppendValues("George", "Washington")
+	ds.AppendValues("Henry", "Ford")
+	ds.AppendValues("Foo", "Bar")
+	ds.AppendColumn("age", []interface{}{90, 67, 83})
+	ds.Insert(1, []interface{}{"Alex", "Kid"})
+
+	fmt.Println(ds.HTML())
+}
+
 func TestLoadYAML(t *testing.T) {
 	ds, _ := LoadYAML([]byte(`- age: 90
   firstName: John
