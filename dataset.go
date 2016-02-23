@@ -43,7 +43,15 @@ func (d *Dataset) Headers() []string {
 	return d.headers
 }
 
-//func (d *Dataset) Load()
+// ColumnCount returns the number of columns in the dataset.
+func (d *Dataset) ColumnCount() int {
+	return d.cols
+}
+
+// RowCount returns the number of rows in the dataset.
+func (d *Dataset) RowCount() int {
+	return d.rows
+}
 
 // Append appends a row of values to the dataset.
 func (d *Dataset) Append(row []interface{}) *Dataset {
