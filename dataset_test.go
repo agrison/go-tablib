@@ -215,10 +215,10 @@ func TestJSON(t *testing.T) {
 	ds := NewDataset([]string{"firstName", "lastName"})
 	ds.AppendValues("George", "Washington")
 	ds.AppendValues("Henry", "Ford")
-	ds.AppendColumn("age", []interface{}{90, 67, 83})
+	ds.AppendColumn("age", []interface{}{90, 67})
 	j, _ := ds.JSON()
 	if j != `[{"age":90,"firstName":"George","lastName":"Washington"},{"age":67,"firstName":"Henry","lastName":"Ford"}]` {
-		t.Errorf("error Json()")
+		t.Errorf("error Json(): " + j)
 	}
 }
 

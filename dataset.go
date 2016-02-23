@@ -28,6 +28,12 @@ type Dataset struct {
 // when exporting to a predefined format.
 type DynamicColumn func([]interface{}) interface{}
 
+var (
+	ErrInvalidDimensions  = errors.New("tablib: Invalid dimension")
+	ErrInvalidColumnIndex = errors.New("tablib: Invalid column index")
+	ErrInvalidRowIndex    = errors.New("tablib: Invalid row index")
+)
+
 // NewDataset creates a new dataset.
 func NewDataset(headers []string) *Dataset {
 	return NewDatasetWithData(headers, nil)
@@ -55,38 +61,47 @@ func (d *Dataset) Height() int {
 }
 
 // Append appends a row of values to the dataset.
-func (d *Dataset) Append(row []interface{}) *Dataset {
+func (d *Dataset) Append(row []interface{}) error {
+	if len(row) != d.cols {
+		return ErrInvalidDimensions
+	}
 	d.data = append(d.data, row)
 	d.tags = append(d.tags, make([]string, 0))
 	d.rows++
-	return d
+	return nil
 }
 
 // AppendTagged appends a row of values to the dataset with one or multiple tags
 // for filtering purposes.
-func (d *Dataset) AppendTagged(row []interface{}, tags ...string) *Dataset {
-	d.Append(row)
+func (d *Dataset) AppendTagged(row []interface{}, tags ...string) error {
+	if err := d.Append(row); err != nil {
+		return err
+	}
 	d.tags[d.rows-1] = tags[:]
-	return d
+	return nil
 }
 
 // AppendValues appends a row of values to the dataset.
-func (d *Dataset) AppendValues(row ...interface{}) *Dataset {
+func (d *Dataset) AppendValues(row ...interface{}) error {
 	return d.Append(row[:])
 }
 
 // AppendValuesTagged appends a row of values to the dataset with one or multiple tags
 // for filtering purposes.
-func (d *Dataset) AppendValuesTagged(row ...interface{}) *Dataset {
+func (d *Dataset) AppendValuesTagged(row ...interface{}) error {
 	return d.AppendTagged(row[:])
 }
 
 // Insert inserts a row at a given index.
-func (d *Dataset) Insert(index int, row []interface{}) *Dataset {
-	// fail silently. should maybe introduce error here
+func (d *Dataset) Insert(index int, row []interface{}) error {
 	if index < 0 || index >= d.rows {
-		return d
+		return ErrInvalidRowIndex
 	}
+
+	if len(row) != d.cols {
+		return ErrInvalidDimensions
+	}
+
 	ndata := make([][]interface{}, 0, d.rows+1)
 	ndata = append(ndata, d.data[:index]...)
 	ndata = append(ndata, row)
@@ -100,48 +115,62 @@ func (d *Dataset) Insert(index int, row []interface{}) *Dataset {
 	ntags = append(ntags, d.tags[index:]...)
 	d.tags = ntags
 
-	return d
+	return nil
+}
+
+// InsertValues inserts a row of values at a given index.
+func (d *Dataset) InsertValues(index int, values ...interface{}) error {
+	return d.Insert(index, values[:])
 }
 
 // InsertTagged inserts a row at a given index with specific tags.
-func (d *Dataset) InsertTagged(index int, row []interface{}, tags ...string) *Dataset {
+func (d *Dataset) InsertTagged(index int, row []interface{}, tags ...string) error {
+	if err := d.Insert(index, row); err != nil {
+		return err
+	}
 	d.Insert(index, row)
 	d.tags[index] = tags[:]
 
-	return d
+	return nil
 }
 
 // AppendColumn appends a new column with values to the dataset.
-func (d *Dataset) AppendColumn(header string, cols []interface{}) *Dataset {
+func (d *Dataset) AppendColumn(header string, cols []interface{}) error {
+	if len(cols) != d.rows {
+		return ErrInvalidDimensions
+	}
 	d.headers = append(d.headers, header)
 	d.cols++
 	for i, e := range d.data {
 		d.data[i] = append(e, cols[i])
 	}
-	return d
+	return nil
 }
 
 // AppendColumnValues appends a new column with values to the dataset.
-func (d *Dataset) AppendColumnValues(header string, cols ...interface{}) *Dataset {
+func (d *Dataset) AppendColumnValues(header string, cols ...interface{}) error {
 	return d.AppendColumn(header, cols[:])
 }
 
 // AppendDynamicColumn appends a dynamic column to the dataset.
-func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) *Dataset {
+func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) {
 	d.headers = append(d.headers, header)
 	d.cols++
 	for i, e := range d.data {
 		d.data[i] = append(e, fn)
 	}
-	return d
 }
 
 // InsertColumn insert a new column at a given index.
-func (d *Dataset) InsertColumn(index int, header string, cols []interface{}) *Dataset {
-	// fail silently. should maybe introduce error here
+func (d *Dataset) InsertColumn(index int, header string, cols []interface{}) error {
 	if index < 0 || index >= d.cols {
-		return d
+		return ErrInvalidColumnIndex
 	}
+
+	if len(cols) != d.rows {
+		return ErrInvalidDimensions
+	}
+
 	d.insertHeader(index, header)
 
 	// for each row, insert the column
@@ -153,15 +182,15 @@ func (d *Dataset) InsertColumn(index int, header string, cols []interface{}) *Da
 		d.data[i] = row
 	}
 
-	return d
+	return nil
 }
 
 // InsertDynamicColumn insert a new dynamic column at a given index.
-func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn) *Dataset {
-	// fail silently. should maybe introduce error here
+func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn) error {
 	if index < 0 || index >= d.cols {
-		return d
+		return ErrInvalidColumnIndex
 	}
+
 	d.insertHeader(index, header)
 
 	// for each row, insert the column
@@ -173,7 +202,7 @@ func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn
 		d.data[i] = row
 	}
 
-	return d
+	return nil
 }
 
 func (d *Dataset) insertHeader(index int, header string) {
@@ -188,7 +217,7 @@ func (d *Dataset) insertHeader(index int, header string) {
 // Stack stacks two Dataset by joining at the row level, and return new combined Dataset.
 func (d *Dataset) Stack(other *Dataset) (*Dataset, error) {
 	if d.Width() != other.Width() {
-		return nil, errors.New("The two datasets don't have the same number of columns.")
+		return nil, ErrInvalidDimensions
 	}
 
 	nd := NewDataset(d.headers)
@@ -209,7 +238,7 @@ func (d *Dataset) Stack(other *Dataset) (*Dataset, error) {
 // StackColumn stacks two Dataset by joining them at the column level, and return new combined Dataset.
 func (d *Dataset) StackColumn(other *Dataset) (*Dataset, error) {
 	if d.Height() != other.Height() {
-		return nil, errors.New("The two datasets don't have the same number of rows.")
+		return nil, ErrInvalidDimensions
 	}
 
 	nheaders := d.headers
@@ -235,6 +264,7 @@ func (d *Dataset) StackColumn(other *Dataset) (*Dataset, error) {
 }
 
 // Column returns all the values for a specific column
+// returns nil if column is not found.
 func (d *Dataset) Column(header string) []interface{} {
 	colIndex := indexOfColumn(header, d)
 	if colIndex == -1 {
@@ -318,20 +348,20 @@ func (d *Dataset) internalSort(column string, reverse bool) *Dataset {
 }
 
 // DeleteRow deletes a row at a specific index
-func (d *Dataset) DeleteRow(row int) *Dataset {
-	if row >= d.rows {
-		return d
+func (d *Dataset) DeleteRow(row int) error {
+	if row < 0 || row >= d.rows {
+		return ErrInvalidRowIndex
 	}
 	d.data = append(d.data[:row], d.data[row+1:]...)
 	d.rows--
-	return d
+	return nil
 }
 
 // DeleteColumn deletes a column from the dataset.
-func (d *Dataset) DeleteColumn(header string) *Dataset {
+func (d *Dataset) DeleteColumn(header string) error {
 	colIndex := indexOfColumn(header, d)
 	if colIndex == -1 {
-		return d
+		return ErrInvalidColumnIndex
 	}
 	d.cols--
 	d.headers = append(d.headers[:colIndex], d.headers[colIndex+1:]...)
@@ -339,7 +369,7 @@ func (d *Dataset) DeleteColumn(header string) *Dataset {
 	for i := range d.data {
 		d.data[i] = append(d.data[i][:colIndex], d.data[i][colIndex+1:]...)
 	}
-	return d
+	return nil
 }
 
 // JSON returns a JSON representation of the dataset as string.

@@ -43,9 +43,8 @@ func (d *Databook) Sheet(title string) Sheet {
 }
 
 // AddSheet adds a sheet to the Databook.
-func (d *Databook) AddSheet(title string, dataset *Dataset) *Databook {
+func (d *Databook) AddSheet(title string, dataset *Dataset) {
 	d.sheets[title] = Sheet{title, dataset}
-	return d
 }
 
 // Size returns the number of sheets in the databook.
