@@ -247,8 +247,8 @@ func (d *Dataset) StackColumn(other *Dataset) (*Dataset, error) {
 	nd := NewDataset(nheaders)
 	nd.cols = d.cols + nd.cols
 	nd.rows = d.rows
-	nd.data = make([][]interface{}, 0, nd.rows)
-	nd.tags = make([][]string, 0, nd.rows)
+	nd.data = make([][]interface{}, nd.rows, nd.rows)
+	nd.tags = make([][]string, nd.rows, nd.rows)
 
 	for i := range d.data {
 		nd.data[i] = make([]interface{}, 0, nd.cols)

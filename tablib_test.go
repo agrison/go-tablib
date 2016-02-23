@@ -21,6 +21,22 @@ func presidentDataset() *tablib.Dataset {
 	return ds
 }
 
+func frenhPresidentDataset() *tablib.Dataset {
+	ds := tablib.NewDataset([]string{"firstName", "lastName", "gpa"})
+	ds.AppendValues("Jacques", "Chirac", 88)
+	ds.AppendValues("Nicolas", "Sarkozy", 98)
+	ds.AppendValues("François", "Hollande", 34)
+	return ds
+}
+
+func frenhPresidentAdditionalDataset() *tablib.Dataset {
+	ds := tablib.NewDataset([]string{"duration", "from"})
+	ds.AppendValues(14, "Paris")
+	ds.AppendValues(12, "Paris")
+	ds.AppendValues(5, "Rouen")
+	return ds
+}
+
 func rowAt(d *tablib.Dataset, index int) map[string]interface{} {
 	return d.Dict()[index].(map[string]interface{})
 }
@@ -128,4 +144,36 @@ func (s *TablibSuite) TestDynamicColumn(c *C) {
 	c.Assert(d[0], Equals, "QWRhbXM=")         // Adams
 	c.Assert(d[1], Equals, "V2FzaGluZ3Rvbg==") // Washington
 	c.Assert(d[2], Equals, "SmVmZmVyc29u")     // Jefferson
+}
+
+func (s *TablibSuite) TestStack(c *C) {
+	ds, _ := presidentDataset().Stack(frenhPresidentDataset())
+	d := ds.Column("lastName")
+	c.Assert(d[0], Equals, "Adams")
+	c.Assert(d[1], Equals, "Washington")
+	c.Assert(d[2], Equals, "Jefferson")
+	c.Assert(d[3], Equals, "Chirac")
+	c.Assert(d[4], Equals, "Sarkozy")
+	c.Assert(d[5], Equals, "Hollande")
+
+	// check invalid dimensions
+	x := frenhPresidentDataset()
+	x.DeleteColumn("lastName")
+	ds, err := presidentDataset().Stack(x)
+	c.Assert(err, Equals, tablib.ErrInvalidDimensions)
+}
+
+func (s *TablibSuite) TestStackColumn(c *C) {
+	ds, _ := frenhPresidentDataset().StackColumn(frenhPresidentAdditionalDataset())
+	d := lastRow(ds)
+	c.Assert(d["firstName"], Equals, "François")
+	c.Assert(d["lastName"], Equals, "Hollande")
+	c.Assert(d["from"], Equals, "Rouen")
+	c.Assert(d["duration"], Equals, 5)
+
+	// check invalid dimensions
+	x := frenhPresidentAdditionalDataset()
+	x.DeleteRow(x.Height() - 1)
+	ds, err := frenhPresidentDataset().StackColumn(x)
+	c.Assert(err, Equals, tablib.ErrInvalidDimensions)
 }
