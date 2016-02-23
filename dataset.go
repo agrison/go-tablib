@@ -1,3 +1,6 @@
+// go-tablib is a format-agnostic tabular dataset library, written in Go.
+// It allows you to import, export, and manipulate tabular data sets.
+// Advanced features include, dynamic columns, tags & filtering, and seamless format import & export.
 package tablib
 
 import (
