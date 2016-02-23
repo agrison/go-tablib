@@ -131,6 +131,18 @@ func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) *Dataset 
 	return d
 }
 
+// InsertColumn insert a new column at a given index.
+// TODO
+func (d *Dataset) InsertColumn(index int, header string, cols []interface{}) *Dataset {
+	return d
+}
+
+// InsertDynamicColumn insert a new dynamic column at a given index.
+// TODO
+func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn) *Dataset {
+	return d
+}
+
 // Column returns all the values for a specific column
 func (d *Dataset) Column(header string) []interface{} {
 	colIndex := indexOfColumn(header, d)
