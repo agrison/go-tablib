@@ -313,7 +313,7 @@ func (d *Dataset) HTML() string {
 	back := d.Records()
 	var b bytes.Buffer
 
-	b.WriteString("<table class=\"table\">\n\t<thead>")
+	b.WriteString("<table class=\"table table-striped\">\n\t<thead>")
 	for i, r := range back {
 		b.WriteString("\n\t\t<tr>")
 		for _, c := range r {
