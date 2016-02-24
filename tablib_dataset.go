@@ -4,6 +4,7 @@
 package tablib
 
 import (
+	"fmt"
 	"sort"
 	"time"
 )
@@ -12,17 +13,30 @@ import (
 type Dataset struct {
 	// EmptyValue represents the string value to b output if a field cannot be
 	// formatted as a string during output of certain formats.
-	EmptyValue string
-	headers    []string
-	data       [][]interface{}
-	tags       [][]string
-	rows       int
-	cols       int
+	EmptyValue       string
+	headers          []string
+	data             [][]interface{}
+	tags             [][]string
+	constraints      []ColumnConstraint
+	rows             int
+	cols             int
+	ValidationErrors []ValidationError
 }
 
 // DynamicColumn represents a function that can be evaluated dynamically
 // when exporting to a predefined format.
 type DynamicColumn func([]interface{}) interface{}
+
+// ColumnConstraint represents a function that is bound as a constraint to
+// the column so that it can validate its value
+type ColumnConstraint func(interface{}) bool
+
+// ValidationError holds the position of a value in the Dataset that have failed
+// to validate a constraint.
+type ValidationError struct {
+	Row    int
+	Column int
+}
 
 // NewDataset creates a new Dataset.
 func NewDataset(headers []string) *Dataset {
@@ -31,7 +45,8 @@ func NewDataset(headers []string) *Dataset {
 
 // NewDatasetWithData creates a new Dataset.
 func NewDatasetWithData(headers []string, data [][]interface{}) *Dataset {
-	d := &Dataset{"", headers, data, make([][]string, 0), len(data), len(headers)}
+	d := &Dataset{"", headers, data, make([][]string, 0), make([]ColumnConstraint,
+		len(headers)), len(data), len(headers), nil}
 	return d
 }
 
@@ -130,10 +145,21 @@ func (d *Dataset) AppendColumn(header string, cols []interface{}) error {
 		return ErrInvalidDimensions
 	}
 	d.headers = append(d.headers, header)
+	d.constraints = append(d.constraints, nil) // no constraint by default
 	d.cols++
 	for i, e := range d.data {
 		d.data[i] = append(e, cols[i])
 	}
+	return nil
+}
+
+func (d *Dataset) AppendConstrainedColumn(header string, constraint ColumnConstraint, cols []interface{}) error {
+	err := d.AppendColumn(header, cols)
+	if err != nil {
+		return err
+	}
+
+	d.constraints[d.cols-1] = constraint
 	return nil
 }
 
@@ -145,9 +171,18 @@ func (d *Dataset) AppendColumnValues(header string, cols ...interface{}) error {
 // AppendDynamicColumn appends a dynamic column to the Dataset.
 func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) {
 	d.headers = append(d.headers, header)
+	d.constraints = append(d.constraints, nil)
 	d.cols++
 	for i, e := range d.data {
 		d.data[i] = append(e, fn)
+	}
+}
+
+// ConstrainColumn adds a constraint to a column in the Dataset.
+func (d *Dataset) ConstrainColumn(header string, constraint ColumnConstraint) {
+	i := indexOfColumn(header, d)
+	if i != -1 {
+		d.constraints[i] = constraint
 	}
 }
 
@@ -195,13 +230,76 @@ func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn
 	return nil
 }
 
+// InserConstrainedColumn insert a new constrained column at a given index.
+func (d *Dataset) InserConstrainedColumn(index int, header string, constraint ColumnConstraint, cols []interface{}) error {
+	err := d.InsertColumn(index, header, cols)
+	if err != nil {
+		return err
+	}
+
+	d.constraints[index] = constraint
+	return nil
+}
+
+// insertHeader inserts a header at a specific index.
 func (d *Dataset) insertHeader(index int, header string) {
 	headers := make([]string, 0, d.cols+1)
 	headers = append(headers, d.headers[:index]...)
 	headers = append(headers, header)
 	headers = append(headers, d.headers[index:]...)
 	d.headers = headers
+
+	constraints := make([]ColumnConstraint, 0, d.cols+1)
+	constraints = append(constraints, d.constraints[:index]...)
+	constraints = append(constraints, nil)
+	constraints = append(constraints, d.constraints[index:]...)
+	d.constraints = constraints
+
 	d.cols++
+}
+
+// Valid returns whether the Dataset is valid regarding constraints that have
+// been previously set on coluns.
+func (d *Dataset) Valid() bool {
+	valid := true
+	for i, constraint := range d.constraints {
+		if constraint != nil {
+			for _, val := range d.Column(d.headers[i]) {
+				if !constraint(val) {
+					valid = false
+					break
+				}
+			}
+		}
+	}
+
+	if valid {
+		d.ValidationErrors = make([]ValidationError, 0)
+	}
+
+	return valid
+}
+
+// Validate returns whether the Dataset is valid regarding constraints that have
+// been previously set on coluns.
+// Its behaviour is different of Valid in a sense that it will validate the whole
+// Dataset and all the validation errors will be available by using Dataset.ValidationErrors
+func (d *Dataset) Validate() bool {
+	d.ValidationErrors = make([]ValidationError, 0)
+
+	valid := true
+	for column, constraint := range d.constraints {
+		if constraint != nil {
+			for row, val := range d.Column(d.headers[column]) {
+				if !constraint(val) {
+					d.ValidationErrors = append(d.ValidationErrors,
+						ValidationError{Row: row, Column: column})
+					valid = false
+				}
+			}
+		}
+	}
+	return valid
 }
 
 // Stack stacks two Dataset by joining at the row level, and return new combined Dataset.
@@ -495,4 +593,9 @@ func (d *Dataset) Records() [][]string {
 	}
 
 	return records
+}
+
+// ffs
+func justLetMeKeepFmt() {
+	fmt.Printf("")
 }

@@ -296,6 +296,42 @@ func (s *TablibSuite) TestSort(c *C) {
 	c.Assert(r["lastName"], Equals, "Adams")
 }
 
+func mustBeYoung(val interface{}) bool {
+	return val.(int) <= 50
+}
+
+func mustBeOld(val interface{}) bool {
+	return val.(int) >= 50
+}
+
+func (s *TablibSuite) TestValid(c *C) {
+	ds := presidentDataset()
+
+	ds.ConstrainColumn("gpa", mustBeYoung)
+	c.Assert(ds.Valid(), Equals, false)
+
+	ds.ConstrainColumn("gpa", mustBeOld)
+	c.Assert(ds.Valid(), Equals, true)
+}
+
+func (s *TablibSuite) TestValidate(c *C) {
+	ds := presidentDataset()
+
+	ds.ConstrainColumn("gpa", mustBeOld)
+	c.Assert(ds.Validate(), Equals, true)
+	c.Assert(len(ds.ValidationErrors), Equals, 0)
+
+	ds.ConstrainColumn("gpa", mustBeYoung)
+	c.Assert(ds.Validate(), Equals, false)
+	c.Assert(len(ds.ValidationErrors), Equals, 2)
+
+	c.Assert(ds.ValidationErrors[0].Row, Equals, 0)
+	c.Assert(ds.ValidationErrors[0].Column, Equals, 2)
+
+	c.Assert(ds.ValidationErrors[1].Row, Equals, 1)
+	c.Assert(ds.ValidationErrors[1].Column, Equals, 2)
+}
+
 func (s *TablibSuite) TestJSON(c *C) {
 	ds := frenchPresidentDataset()
 	j, _ := ds.JSON()
