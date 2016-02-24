@@ -3,6 +3,7 @@
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
 [![Go Report Card](https://goreportcard.com/badge/github.com/agrison/go-commons-lang)][goreportcard]
+[![Build Status](https://travis-ci.org/agrison/go-tablib.svg?branch=master)](https://travis-ci.org/agrison/go-tablib)
 
 [license]: https://github.com/agrison/go-tablib/blob/master/LICENSE
 [godocs]: https://godoc.org/github.com/agrison/go-tablib
