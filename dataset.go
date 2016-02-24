@@ -331,19 +331,31 @@ func (d *Dataset) Rows(index ...int) ([]map[string]interface{}, error) {
 	return rows, nil
 }
 
-// Slice returns a slice of the Dataset like a slice of an array.
+// Slice returns a new Dataset representing a slice of the orignal Dataset like a slice of an array.
 // returns tablib.ErrInvalidRowIndex if the lower or upper bound is out of range.
-func (d *Dataset) Slice(lower, upperNonInclusive int) ([]map[string]interface{}, error) {
+func (d *Dataset) Slice(lower, upperNonInclusive int) (*Dataset, error) {
 	if lower > upperNonInclusive || lower < 0 || upperNonInclusive > d.rows {
 		return nil, ErrInvalidRowIndex
 	}
 
-	index := make([]int, 0, upperNonInclusive-lower)
+	rowCount := upperNonInclusive - lower
+	cols := d.cols
+	nd := NewDataset(d.headers)
+	nd.data = make([][]interface{}, 0, rowCount)
+	nd.tags = make([][]string, 0, rowCount)
+	nd.rows = upperNonInclusive - lower
+	j := 0
 	for i := lower; i < upperNonInclusive; i++ {
-		index = append(index, i)
+		nd.data = append(nd.data, make([]interface{}, 0, cols))
+		nd.data[j] = make([]interface{}, 0, cols)
+		nd.data[j] = append(nd.data[j], d.data[i]...)
+		nd.tags = append(nd.tags, make([]string, 0, cols))
+		nd.tags[j] = make([]string, 0, cols)
+		nd.tags[j] = append(nd.tags[j], d.tags[i]...)
+		j++
 	}
 
-	return d.Rows(index...)
+	return nd, nil
 }
 
 // Filter filters a Dataset, returning a fresh Dataset including only the rows

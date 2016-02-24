@@ -184,24 +184,27 @@ func (s *TablibSuite) TestRows(c *C) {
 
 func (s *TablibSuite) TestSlice(c *C) {
 	ds := presidentDataset()
-	rows, err := ds.Slice(-1, 5) // invalid lower bound
+	_, err := ds.Slice(-1, 5) // invalid lower bound
 	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
-	rows, err = ds.Slice(0, 100) // invalider upper bound
+	_, err = ds.Slice(0, 100) // invalider upper bound
 	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
-	rows, err = ds.Slice(1, 0) // lower bound > upper bound
+	_, err = ds.Slice(1, 0) // lower bound > upper bound
 	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
-	rows, err = ds.Slice(1, 2) // single row
+	s1, err := ds.Slice(1, 2) // single row
 	c.Assert(err, Equals, nil)
-	c.Assert(len(rows), Equals, 1)
-	c.Assert(rows[0]["firstName"], Equals, "George")
-	c.Assert(rows[0]["lastName"], Equals, "Washington")
-	rows, err = ds.Slice(1, 3) // two rows
+	c.Assert(s1.Height(), Equals, 1)
+	row, _ := s1.Row(0)
+	c.Assert(row["firstName"], Equals, "George")
+	c.Assert(row["lastName"], Equals, "Washington")
+	s2, err := ds.Slice(1, 3) // two rows
 	c.Assert(err, Equals, nil)
-	c.Assert(len(rows), Equals, 2)
-	c.Assert(rows[0]["firstName"], Equals, "George")
-	c.Assert(rows[0]["lastName"], Equals, "Washington")
-	c.Assert(rows[1]["firstName"], Equals, "Thomas")
-	c.Assert(rows[1]["lastName"], Equals, "Jefferson")
+	c.Assert(s2.Height(), Equals, 2)
+	row, _ = s2.Row(0)
+	c.Assert(row["firstName"], Equals, "George")
+	c.Assert(row["lastName"], Equals, "Washington")
+	row, _ = s2.Row(1)
+	c.Assert(row["firstName"], Equals, "Thomas")
+	c.Assert(row["lastName"], Equals, "Jefferson")
 }
 
 func (s *TablibSuite) TestStack(c *C) {
