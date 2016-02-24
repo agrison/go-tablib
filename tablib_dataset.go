@@ -231,8 +231,8 @@ func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn
 	return nil
 }
 
-// InserConstrainedColumn insert a new constrained column at a given index.
-func (d *Dataset) InserConstrainedColumn(index int, header string, constraint ColumnConstraint, cols []interface{}) error {
+// InsertConstrainedColumn insert a new constrained column at a given index.
+func (d *Dataset) InsertConstrainedColumn(index int, header string, constraint ColumnConstraint, cols []interface{}) error {
 	err := d.InsertColumn(index, header, cols)
 	if err != nil {
 		return err
