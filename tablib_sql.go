@@ -88,6 +88,39 @@ func (d *Dataset) Postgres(table string) string {
 func (d *Dataset) sql(table, dbType string) string {
 	var b bytes.Buffer
 
+	tableSql, columnTypes, columnValues := d.createTable(table, dbType)
+	b.WriteString(tableSql)
+
+	reg, _ := regexp.Compile("[']")
+	// inserts
+	for i := range d.data {
+		b.WriteString("INSERT INTO " + table + " VALUES(" + strconv.Itoa(i+1) + ", ")
+		for j, col := range d.headers {
+			asStr := d.asString(columnValues[col][i])
+			if isStringColumn(columnTypes[col]) {
+				b.WriteString("'" + reg.ReplaceAllString(asStr, "''") + "'")
+			} else if strings.HasPrefix(columnTypes[col], "TIMESTAMP") {
+				if dbType == typeMySQL {
+					b.WriteString("CONVERT_TZ('" + asStr[:10] + " " + asStr[11:19] + "', '" + asStr[len(asStr)-6:] + "', 'SYSTEM')")
+				} else {
+					b.WriteString("'" + asStr + "'") // simpler with Postgres
+				}
+			} else {
+				b.WriteString(asStr)
+			}
+			if j < len(d.headers)-1 {
+				b.WriteString(", ")
+			}
+		}
+		b.WriteString(");\n")
+	}
+	b.WriteString("\nCOMMIT;\n")
+
+	return b.String()
+}
+
+func (d *Dataset) createTable(table, dbType string) (string, map[string]string, map[string][]interface{}) {
+	var b bytes.Buffer
 	columnValues := make(map[string][]interface{})
 	columnTypes := make(map[string]string)
 
@@ -112,24 +145,5 @@ func (d *Dataset) sql(table, dbType string) string {
 
 	b.WriteString(");\n\n")
 
-	reg, _ := regexp.Compile("[']")
-	// inserts
-	for i := range d.data {
-		b.WriteString("INSERT INTO " + table + " VALUES(" + strconv.Itoa(i+1) + ", ")
-		for j, col := range d.headers {
-			asStr := d.asString(columnValues[col][i])
-			if isStringColumn(columnTypes[col]) {
-				b.WriteString("'" + reg.ReplaceAllString(asStr, "''") + "'")
-			} else {
-				b.WriteString(asStr)
-			}
-			if j < len(d.headers)-1 {
-				b.WriteString(", ")
-			}
-		}
-		b.WriteString(");\n")
-	}
-	b.WriteString("\nCOMMIT;\n")
-
-	return b.String()
+	return b.String(), columnTypes, columnValues
 }
