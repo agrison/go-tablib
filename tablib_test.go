@@ -45,12 +45,14 @@ func frenhPresidentAdditionalDataset() *tablib.Dataset {
 	return ds
 }
 
-func rowAt(d *tablib.Dataset, index int) map[string]interface{} {
-	return d.Dict()[index].(map[string]interface{})
+func validRowAt(d *tablib.Dataset, index int) map[string]interface{} {
+	row, _ := d.Row(index)
+	return row
 }
 
 func lastRow(d *tablib.Dataset) map[string]interface{} {
-	return d.Dict()[d.Height()-1].(map[string]interface{})
+	row, _ := d.Row(d.Height() - 1)
+	return row
 }
 
 func (s *TablibSuite) TestDimensions(c *C) {
@@ -102,7 +104,7 @@ func (s *TablibSuite) TestInsert(c *C) {
 	// ok
 	c.Assert(ds.InsertValues(1, "foo", "bar", 42), Equals, nil)
 	// test values are there
-	d := rowAt(ds, 1)
+	d := validRowAt(ds, 1)
 	c.Assert(d["firstName"], Equals, "foo")
 	c.Assert(d["lastName"], Equals, "bar")
 	c.Assert(d["gpa"], Equals, 42)
@@ -154,6 +156,54 @@ func (s *TablibSuite) TestDynamicColumn(c *C) {
 	c.Assert(d[2], Equals, "SmVmZmVyc29u")     // Jefferson
 }
 
+func (s *TablibSuite) TestRow(c *C) {
+	ds := presidentDataset()
+	row, err := ds.Row(-1)
+	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
+	row, err = ds.Row(100)
+	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
+	row, err = ds.Row(1)
+	c.Assert(err, Equals, nil)
+	c.Assert(row["firstName"], Equals, "George")
+	c.Assert(row["lastName"], Equals, "Washington")
+}
+
+func (s *TablibSuite) TestRows(c *C) {
+	ds := presidentDataset()
+	rows, err := ds.Rows(-1, 5)
+	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
+	rows, err = ds.Rows(0, 1, 100)
+	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
+	rows, err = ds.Rows(1, 2)
+	c.Assert(err, Equals, nil)
+	c.Assert(rows[0]["firstName"], Equals, "George")
+	c.Assert(rows[0]["lastName"], Equals, "Washington")
+	c.Assert(rows[1]["firstName"], Equals, "Thomas")
+	c.Assert(rows[1]["lastName"], Equals, "Jefferson")
+}
+
+func (s *TablibSuite) TestSlice(c *C) {
+	ds := presidentDataset()
+	rows, err := ds.Slice(-1, 5) // invalid lower bound
+	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
+	rows, err = ds.Slice(0, 100) // invalider upper bound
+	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
+	rows, err = ds.Slice(1, 0) // lower bound > upper bound
+	c.Assert(err, Equals, tablib.ErrInvalidRowIndex)
+	rows, err = ds.Slice(1, 2) // single row
+	c.Assert(err, Equals, nil)
+	c.Assert(len(rows), Equals, 1)
+	c.Assert(rows[0]["firstName"], Equals, "George")
+	c.Assert(rows[0]["lastName"], Equals, "Washington")
+	rows, err = ds.Slice(1, 3) // two rows
+	c.Assert(err, Equals, nil)
+	c.Assert(len(rows), Equals, 2)
+	c.Assert(rows[0]["firstName"], Equals, "George")
+	c.Assert(rows[0]["lastName"], Equals, "Washington")
+	c.Assert(rows[1]["firstName"], Equals, "Thomas")
+	c.Assert(rows[1]["lastName"], Equals, "Jefferson")
+}
+
 func (s *TablibSuite) TestStack(c *C) {
 	ds, _ := presidentDataset().Stack(frenhPresidentDataset())
 	d := ds.Column("lastName")
@@ -196,10 +246,10 @@ func (s *TablibSuite) TestFiltering(c *C) {
 
 	df = ds.Filter("Virginia")
 	c.Assert(df.Height(), Equals, 2)
-	r = rowAt(df, 0)
+	r = validRowAt(df, 0)
 	c.Assert(r["firstName"], Equals, "George")
 	c.Assert(r["lastName"], Equals, "Washington")
-	r = rowAt(df, 1)
+	r = validRowAt(df, 1)
 	c.Assert(r["firstName"], Equals, "Thomas")
 	c.Assert(r["lastName"], Equals, "Jefferson")
 
@@ -212,17 +262,17 @@ func (s *TablibSuite) TestSort(c *C) {
 	ds := presidentDataset().Sort("gpa")
 	c.Assert(ds.Height(), Equals, 3)
 
-	r := rowAt(ds, 0)
+	r := validRowAt(ds, 0)
 	c.Assert(r["firstName"], Equals, "Thomas")
 	c.Assert(r["lastName"], Equals, "Jefferson")
 	c.Assert(r["gpa"], Equals, 50)
 
-	r = rowAt(ds, 1)
+	r = validRowAt(ds, 1)
 	c.Assert(r["firstName"], Equals, "George")
 	c.Assert(r["lastName"], Equals, "Washington")
 	c.Assert(r["gpa"], Equals, 67)
 
-	r = rowAt(ds, 2)
+	r = validRowAt(ds, 2)
 	c.Assert(r["firstName"], Equals, "John")
 	c.Assert(r["lastName"], Equals, "Adams")
 	c.Assert(r["gpa"], Equals, 90)
@@ -230,15 +280,15 @@ func (s *TablibSuite) TestSort(c *C) {
 	ds = ds.SortReverse("lastName")
 	c.Assert(ds.Height(), Equals, 3)
 
-	r = rowAt(ds, 0)
+	r = validRowAt(ds, 0)
 	c.Assert(r["firstName"], Equals, "George")
 	c.Assert(r["lastName"], Equals, "Washington")
 
-	r = rowAt(ds, 1)
+	r = validRowAt(ds, 1)
 	c.Assert(r["firstName"], Equals, "Thomas")
 	c.Assert(r["lastName"], Equals, "Jefferson")
 
-	r = rowAt(ds, 2)
+	r = validRowAt(ds, 2)
 	c.Assert(r["firstName"], Equals, "John")
 	c.Assert(r["lastName"], Equals, "Adams")
 }

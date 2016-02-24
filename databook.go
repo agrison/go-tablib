@@ -47,7 +47,7 @@ func (d *Databook) AddSheet(title string, dataset *Dataset) {
 	d.sheets[title] = Sheet{title, dataset}
 }
 
-// Size returns the number of sheets in the databook.
+// Size returns the number of sheets in the Databook.
 func (d *Databook) Size() int {
 	return len(d.sheets)
 }
@@ -59,7 +59,7 @@ func (d *Databook) Wipe() {
 	}
 }
 
-// JSON returns a JSON representation of the databook as string.
+// JSON returns a JSON representation of the Databook as string.
 func (d *Databook) JSON() (string, error) {
 	str := "["
 	for _, s := range d.sheets {
@@ -76,17 +76,17 @@ func (d *Databook) JSON() (string, error) {
 
 // XML returns a XML representation of the Databook as string.
 func (d *Databook) XML() string {
-	str := "<databook>\n"
+	str := "<Databook>\n"
 	for _, s := range d.sheets {
 		str += "  <sheet>\n    <title>" + s.title + "</title>\n    "
 		str += s.dataset.XMLWithTagNamePrefixIndent("row", "      ", "  ")
 		str += "\n  </sheet>"
 	}
-	str += "\n</databook>"
+	str += "\n</Databook>"
 	return str
 }
 
-// YAML returns a YAML representation of the databook as string.
+// YAML returns a YAML representation of the Databook as string.
 func (d *Databook) YAML() (string, error) {
 	y := make([]map[string]interface{}, len(d.sheets))
 	i := 0
@@ -102,7 +102,7 @@ func (d *Databook) YAML() (string, error) {
 	return string(b), nil
 }
 
-// XLSX returns a XLSX representation of the databook as a byte array.
+// XLSX returns a XLSX representation of the Databook as a byte array.
 func (d *Databook) XLSX() ([]byte, error) {
 	file := xlsx.NewFile()
 
@@ -115,7 +115,7 @@ func (d *Databook) XLSX() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-// HTML returns a HTML representation of the databook as a byte array.
+// HTML returns a HTML representation of the Databook as a byte array.
 func (d *Databook) HTML() string {
 	var b bytes.Buffer
 

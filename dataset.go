@@ -1,4 +1,4 @@
-// Package tablib is a format-agnostic tabular dataset library, written in Go.
+// Package tablib is a format-agnostic tabular Dataset library, written in Go.
 // It allows you to import, export, and manipulate tabular data sets.
 // Advanced features include, dynamic columns, tags & filtering, and seamless format import & export.
 package tablib
@@ -45,33 +45,33 @@ var (
 	ErrInvalidRowIndex = errors.New("tablib: Invalid row index")
 )
 
-// NewDataset creates a new dataset.
+// NewDataset creates a new Dataset.
 func NewDataset(headers []string) *Dataset {
 	return NewDatasetWithData(headers, nil)
 }
 
-// NewDatasetWithData creates a new dataset.
+// NewDatasetWithData creates a new Dataset.
 func NewDatasetWithData(headers []string, data [][]interface{}) *Dataset {
 	d := &Dataset{"", headers, data, make([][]string, 0), len(data), len(headers)}
 	return d
 }
 
-// Headers return the headers of the dataset.
+// Headers return the headers of the Dataset.
 func (d *Dataset) Headers() []string {
 	return d.headers
 }
 
-// Width returns the number of columns in the dataset.
+// Width returns the number of columns in the Dataset.
 func (d *Dataset) Width() int {
 	return d.cols
 }
 
-// Height returns the number of rows in the dataset.
+// Height returns the number of rows in the Dataset.
 func (d *Dataset) Height() int {
 	return d.rows
 }
 
-// Append appends a row of values to the dataset.
+// Append appends a row of values to the Dataset.
 func (d *Dataset) Append(row []interface{}) error {
 	if len(row) != d.cols {
 		return ErrInvalidDimensions
@@ -82,7 +82,7 @@ func (d *Dataset) Append(row []interface{}) error {
 	return nil
 }
 
-// AppendTagged appends a row of values to the dataset with one or multiple tags
+// AppendTagged appends a row of values to the Dataset with one or multiple tags
 // for filtering purposes.
 func (d *Dataset) AppendTagged(row []interface{}, tags ...string) error {
 	if err := d.Append(row); err != nil {
@@ -92,12 +92,12 @@ func (d *Dataset) AppendTagged(row []interface{}, tags ...string) error {
 	return nil
 }
 
-// AppendValues appends a row of values to the dataset.
+// AppendValues appends a row of values to the Dataset.
 func (d *Dataset) AppendValues(row ...interface{}) error {
 	return d.Append(row[:])
 }
 
-// AppendValuesTagged appends a row of values to the dataset with one or multiple tags
+// AppendValuesTagged appends a row of values to the Dataset with one or multiple tags
 // for filtering purposes.
 func (d *Dataset) AppendValuesTagged(row ...interface{}) error {
 	return d.AppendTagged(row[:])
@@ -145,7 +145,7 @@ func (d *Dataset) InsertTagged(index int, row []interface{}, tags ...string) err
 	return nil
 }
 
-// AppendColumn appends a new column with values to the dataset.
+// AppendColumn appends a new column with values to the Dataset.
 func (d *Dataset) AppendColumn(header string, cols []interface{}) error {
 	if len(cols) != d.rows {
 		return ErrInvalidDimensions
@@ -158,12 +158,12 @@ func (d *Dataset) AppendColumn(header string, cols []interface{}) error {
 	return nil
 }
 
-// AppendColumnValues appends a new column with values to the dataset.
+// AppendColumnValues appends a new column with values to the Dataset.
 func (d *Dataset) AppendColumnValues(header string, cols ...interface{}) error {
 	return d.AppendColumn(header, cols[:])
 }
 
-// AppendDynamicColumn appends a dynamic column to the dataset.
+// AppendDynamicColumn appends a dynamic column to the Dataset.
 func (d *Dataset) AppendDynamicColumn(header string, fn DynamicColumn) {
 	d.headers = append(d.headers, header)
 	d.cols++
@@ -294,7 +294,59 @@ func (d *Dataset) Column(header string) []interface{} {
 	return values
 }
 
-// Filter filters a dataset, returning a fresh dataset including only the rows
+// Row returns a map representing a specific row of the Dataset.
+// returns tablib.ErrInvalidRowIndex if the row cannot be found
+func (d *Dataset) Row(index int) (map[string]interface{}, error) {
+	if index < 0 || index >= d.rows {
+		return nil, ErrInvalidRowIndex
+	}
+
+	row := make(map[string]interface{})
+	for i, e := range d.data[index] {
+		switch e.(type) {
+		case DynamicColumn:
+			row[d.headers[i]] = e.(DynamicColumn)(d.data[index])
+		default:
+			row[d.headers[i]] = e
+		}
+	}
+	return row, nil
+}
+
+// Rows returns an array of map representing a set of specific rows of the Dataset.
+// returns tablib.ErrInvalidRowIndex if the row cannot be found.
+func (d *Dataset) Rows(index ...int) ([]map[string]interface{}, error) {
+	for _, i := range index {
+		if i < 0 || i >= d.rows {
+			return nil, ErrInvalidRowIndex
+		}
+	}
+
+	rows := make([]map[string]interface{}, 0, len(index))
+	for _, i := range index {
+		row, _ := d.Row(i)
+		rows = append(rows, row)
+	}
+
+	return rows, nil
+}
+
+// Slice returns a slice of the Dataset like a slice of an array.
+// returns tablib.ErrInvalidRowIndex if the lower or upper bound is out of range.
+func (d *Dataset) Slice(lower, upperNonInclusive int) ([]map[string]interface{}, error) {
+	if lower > upperNonInclusive || lower < 0 || upperNonInclusive > d.rows {
+		return nil, ErrInvalidRowIndex
+	}
+
+	index := make([]int, 0, upperNonInclusive-lower)
+	for i := lower; i < upperNonInclusive; i++ {
+		index = append(index, i)
+	}
+
+	return d.Rows(index...)
+}
+
+// Filter filters a Dataset, returning a fresh Dataset including only the rows
 // previously tagged with one of the given tags. Returns a new Dataset.
 func (d *Dataset) Filter(tags ...string) *Dataset {
 	nd := NewDataset(d.headers)
@@ -350,7 +402,7 @@ func (d *Dataset) internalSort(column string, reverse bool) *Dataset {
 		sort.Sort(sort.Reverse(how))
 	}
 
-	// now iterate on the pairs and add the data sorted to the new dataset
+	// now iterate on the pairs and add the data sorted to the new Dataset
 	for _, p := range pairs {
 		nd.AppendTagged(d.data[p.index], d.tags[p.index]...)
 	}
@@ -369,7 +421,7 @@ func (d *Dataset) Transpose() *Dataset {
 		newHeaders = append(newHeaders, d.asString(c))
 	}
 
-	nd := NewDataset(newHeaders)
+	//nd := NewDataset(newHeaders)
 
 	panic("Transpose() not yet implemented")
 }
@@ -384,7 +436,7 @@ func (d *Dataset) DeleteRow(row int) error {
 	return nil
 }
 
-// DeleteColumn deletes a column from the dataset.
+// DeleteColumn deletes a column from the Dataset.
 func (d *Dataset) DeleteColumn(header string) error {
 	colIndex := indexOfColumn(header, d)
 	if colIndex == -1 {
@@ -399,7 +451,7 @@ func (d *Dataset) DeleteColumn(header string) error {
 	return nil
 }
 
-// JSON returns a JSON representation of the dataset as string.
+// JSON returns a JSON representation of the Dataset as string.
 func (d *Dataset) JSON() (string, error) {
 	back := d.Dict()
 
@@ -410,7 +462,7 @@ func (d *Dataset) JSON() (string, error) {
 	return string(b), nil
 }
 
-// XML returns a XML representation of the dataset as string.
+// XML returns a XML representation of the Dataset as string.
 func (d *Dataset) XML() string {
 	return d.XMLWithTagNamePrefixIndent("row", "  ", "  ")
 }
@@ -420,17 +472,17 @@ func (d *Dataset) XMLWithTagNamePrefixIndent(tagName, prefix, indent string) str
 	back := d.Dict()
 
 	var b bytes.Buffer
-	b.WriteString("<dataset>\n")
+	b.WriteString("<Dataset>\n")
 	for _, r := range back {
 		m := mxj.Map(r.(map[string]interface{}))
 		m.XmlIndentWriter(&b, prefix, indent, tagName)
 	}
-	b.WriteString("\n" + prefix + "</dataset>")
+	b.WriteString("\n" + prefix + "</Dataset>")
 
 	return b.String()
 }
 
-// CSV returns a CSV representation of the dataset as string.
+// CSV returns a CSV representation of the Dataset as string.
 func (d *Dataset) CSV() (string, error) {
 	records := d.Records()
 	var b bytes.Buffer
@@ -445,7 +497,7 @@ func (d *Dataset) CSV() (string, error) {
 	return b.String(), nil
 }
 
-// TSV returns a TSV representation of the dataset as string.
+// TSV returns a TSV representation of the Dataset as string.
 func (d *Dataset) TSV() (string, error) {
 	records := d.Records()
 	var b bytes.Buffer
@@ -461,7 +513,7 @@ func (d *Dataset) TSV() (string, error) {
 	return b.String(), nil
 }
 
-// YAML returns a YAML representation of the dataset as string.
+// YAML returns a YAML representation of the Dataset as string.
 func (d *Dataset) YAML() (string, error) {
 	back := d.Dict()
 
@@ -504,7 +556,7 @@ func (d *Dataset) addXlsxSheetToFile(file *xlsx.File, sheetName string) error {
 	return nil
 }
 
-// HTML returns the HTML representation of the dataset as string.
+// HTML returns the HTML representation of the Dataset as string.
 func (d *Dataset) HTML() string {
 	back := d.Records()
 	var b bytes.Buffer
@@ -531,7 +583,7 @@ func (d *Dataset) HTML() string {
 	return b.String()
 }
 
-// Tabular returns a tabular string representation of the dataset.
+// Tabular returns a tabular string representation of the Dataset.
 // format is either grid or simple.
 func (d *Dataset) Tabular(format string) string {
 	back := d.Records()
@@ -549,7 +601,7 @@ func indexOfColumn(header string, d *Dataset) int {
 	return -1
 }
 
-// Dict returns the dataset as an array of map where each key is a column.
+// Dict returns the Dataset as an array of map where each key is a column.
 func (d *Dataset) Dict() []interface{} {
 	back := make([]interface{}, d.rows)
 	for i, e := range d.data {
@@ -567,8 +619,8 @@ func (d *Dataset) Dict() []interface{} {
 	return back
 }
 
-// Records returns the dataset as an array of array where each entry is a string.
-// The first row of the returned 2d array represents the columns of the dataset.
+// Records returns the Dataset as an array of array where each entry is a string.
+// The first row of the returned 2d array represents the columns of the Dataset.
 func (d *Dataset) Records() [][]string {
 	records := make([][]string, d.rows+1 /* +1 for header */)
 	records[0] = make([]string, d.cols)
