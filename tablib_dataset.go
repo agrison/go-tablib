@@ -153,6 +153,7 @@ func (d *Dataset) AppendColumn(header string, cols []interface{}) error {
 	return nil
 }
 
+// AppendConstrainedColumn appends a constrained column to the Dataset.
 func (d *Dataset) AppendConstrainedColumn(header string, constraint ColumnConstraint, cols []interface{}) error {
 	err := d.AppendColumn(header, cols)
 	if err != nil {
