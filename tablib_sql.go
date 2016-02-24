@@ -52,21 +52,20 @@ func (d *Dataset) columnSQLType(header, dbType string) (string, []interface{}) {
 			return "TEXT", values
 		}
 		return "VARCHAR(100)", values
-	} else {
-		switch currentType {
-		case "numeric":
-			if dbType == typePostgres {
-				return "NUMERIC", values
-			}
-			return "DOUBLE", values
-		case "time":
-			return "TIMESTAMP", values
-		default:
-			if dbType == typePostgres {
-				return "TEXT", values
-			}
-			return "VARCHAR(" + strconv.Itoa(maxString) + ")", values
+	}
+	switch currentType {
+	case "numeric":
+		if dbType == typePostgres {
+			return "NUMERIC", values
 		}
+		return "DOUBLE", values
+	case "time":
+		return "TIMESTAMP", values
+	default:
+		if dbType == typePostgres {
+			return "TEXT", values
+		}
+		return "VARCHAR(" + strconv.Itoa(maxString) + ")", values
 	}
 }
 
