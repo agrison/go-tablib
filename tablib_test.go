@@ -29,7 +29,7 @@ func presidentDatasetWithTags() *tablib.Dataset {
 	return ds
 }
 
-func frenhPresidentDataset() *tablib.Dataset {
+func frenchPresidentDataset() *tablib.Dataset {
 	ds := tablib.NewDataset([]string{"firstName", "lastName", "gpa"})
 	ds.AppendValues("Jacques", "Chirac", 88)
 	ds.AppendValues("Nicolas", "Sarkozy", 98)
@@ -37,7 +37,7 @@ func frenhPresidentDataset() *tablib.Dataset {
 	return ds
 }
 
-func frenhPresidentAdditionalDataset() *tablib.Dataset {
+func frenchPresidentAdditionalDataset() *tablib.Dataset {
 	ds := tablib.NewDataset([]string{"duration", "from"})
 	ds.AppendValues(14, "Paris")
 	ds.AppendValues(12, "Paris")
@@ -208,7 +208,7 @@ func (s *TablibSuite) TestSlice(c *C) {
 }
 
 func (s *TablibSuite) TestStack(c *C) {
-	ds, _ := presidentDataset().Stack(frenhPresidentDataset())
+	ds, _ := presidentDataset().Stack(frenchPresidentDataset())
 	d := ds.Column("lastName")
 	c.Assert(d[0], Equals, "Adams")
 	c.Assert(d[1], Equals, "Washington")
@@ -218,14 +218,14 @@ func (s *TablibSuite) TestStack(c *C) {
 	c.Assert(d[5], Equals, "Hollande")
 
 	// check invalid dimensions
-	x := frenhPresidentDataset()
+	x := frenchPresidentDataset()
 	x.DeleteColumn("lastName")
 	ds, err := presidentDataset().Stack(x)
 	c.Assert(err, Equals, tablib.ErrInvalidDimensions)
 }
 
 func (s *TablibSuite) TestStackColumn(c *C) {
-	ds, _ := frenhPresidentDataset().StackColumn(frenhPresidentAdditionalDataset())
+	ds, _ := frenchPresidentDataset().StackColumn(frenchPresidentAdditionalDataset())
 	d := lastRow(ds)
 	c.Assert(d["firstName"], Equals, "François")
 	c.Assert(d["lastName"], Equals, "Hollande")
@@ -233,9 +233,9 @@ func (s *TablibSuite) TestStackColumn(c *C) {
 	c.Assert(d["duration"], Equals, 5)
 
 	// check invalid dimensions
-	x := frenhPresidentAdditionalDataset()
+	x := frenchPresidentAdditionalDataset()
 	x.DeleteRow(x.Height() - 1)
-	ds, err := frenhPresidentDataset().StackColumn(x)
+	ds, err := frenchPresidentDataset().StackColumn(x)
 	c.Assert(err, Equals, tablib.ErrInvalidDimensions)
 }
 
@@ -297,13 +297,13 @@ func (s *TablibSuite) TestSort(c *C) {
 }
 
 func (s *TablibSuite) TestJSON(c *C) {
-	ds := frenhPresidentDataset()
+	ds := frenchPresidentDataset()
 	j, _ := ds.JSON()
 	c.Assert(j, Equals, "[{\"firstName\":\"Jacques\",\"gpa\":88,\"lastName\":\"Chirac\"},{\"firstName\":\"Nicolas\",\"gpa\":98,\"lastName\":\"Sarkozy\"},{\"firstName\":\"François\",\"gpa\":34,\"lastName\":\"Hollande\"}]")
 }
 
 func (s *TablibSuite) TestYAML(c *C) {
-	ds := frenhPresidentDataset()
+	ds := frenchPresidentDataset()
 	j, _ := ds.YAML()
 	c.Assert(j, Equals, `- firstName: Jacques
   gpa: 88
@@ -318,7 +318,7 @@ func (s *TablibSuite) TestYAML(c *C) {
 }
 
 func (s *TablibSuite) TestCSV(c *C) {
-	ds := frenhPresidentDataset()
+	ds := frenchPresidentDataset()
 	j, _ := ds.CSV()
 	c.Assert(j, Equals, `firstName,lastName,gpa
 Jacques,Chirac,88
@@ -328,7 +328,7 @@ François,Hollande,34
 }
 
 func (s *TablibSuite) TestTSV(c *C) {
-	ds := frenhPresidentDataset()
+	ds := frenchPresidentDataset()
 	j, _ := ds.TSV()
 	c.Assert(j, Equals, `firstName`+"\t"+`lastName`+"\t"+`gpa
 Jacques`+"\t"+`Chirac`+"\t"+`88
@@ -338,7 +338,7 @@ François`+"\t"+`Hollande`+"\t"+`34
 }
 
 func (s *TablibSuite) TestHTML(c *C) {
-	ds := frenhPresidentDataset()
+	ds := frenchPresidentDataset()
 	j := ds.HTML()
 	c.Assert(j, Equals, `<table class="table table-striped">
 	<thead>
@@ -369,7 +369,7 @@ func (s *TablibSuite) TestHTML(c *C) {
 }
 
 func (s *TablibSuite) TestTabular(c *C) {
-	ds := frenhPresidentDataset()
+	ds := frenchPresidentDataset()
 	j := ds.Tabular("grid")
 	c.Assert(j, Equals, `+--------------+-------------+--------+
 |    firstName |    lastName |    gpa |
@@ -393,4 +393,51 @@ func (s *TablibSuite) TestTabular(c *C) {
 		`     François       Hollande        34 `+"\n"+
 		`--------------  -------------  --------`+
 		"\n")
+}
+
+func (s *TablibSuite) TestMySQL(c *C) {
+	ds := frenchPresidentDataset()
+	j := ds.MySQL("presidents")
+	c.Assert(j, Equals, `CREATE TABLE IF NOT EXISTS presidents
+(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	firstName VARCHAR(9),
+	lastName VARCHAR(8),
+	gpa DOUBLE
+);
+
+INSERT INTO presidents VALUES(1, 'Jacques', 'Chirac', 88);
+INSERT INTO presidents VALUES(2, 'Nicolas', 'Sarkozy', 98);
+INSERT INTO presidents VALUES(3, 'François', 'Hollande', 34);
+
+COMMIT;
+`)
+}
+
+func (s *TablibSuite) TestPostgres(c *C) {
+	ds := frenchPresidentDataset()
+	j := ds.Postgres("presidents")
+	c.Assert(j, Equals, `CREATE TABLE IF NOT EXISTS presidents
+(
+	id SERIAL PRIMARY KEY,
+	firstName TEXT,
+	lastName TEXT,
+	gpa NUMERIC
+);
+
+INSERT INTO presidents VALUES(1, 'Jacques', 'Chirac', 88);
+INSERT INTO presidents VALUES(2, 'Nicolas', 'Sarkozy', 98);
+INSERT INTO presidents VALUES(3, 'François', 'Hollande', 34);
+
+COMMIT;
+`)
+}
+
+// ---------- Benchmarking ----------
+
+func (s *TablibSuite) BenchmarkAppendRow(c *C) {
+	benchDataset1 := frenchPresidentDataset()
+	for i := 0; i < c.N; i++ {
+		benchDataset1.AppendValues("foo", "bar", 42)
+	}
 }

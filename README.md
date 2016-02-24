@@ -21,6 +21,8 @@ Export formats supported:
 * TSV (Sets)
 * CSV (Sets)
 * ASCII (Sets)
+* MySQL (Sets)
+* Postgres (Sets)
 
 Loading formats supported:
 
@@ -335,6 +337,50 @@ Will output:
 
           Foo              Bar        83
 --------------  ---------------  --------
+```
+
+### MySQL
+```go
+sql := ds.MySQL()
+```
+
+Will output:
+```sql
+CREATE TABLE IF NOT EXISTS presidents
+(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	firstName VARCHAR(9),
+	lastName VARCHAR(8),
+	gpa DOUBLE
+);
+
+INSERT INTO presidents VALUES(1, 'Jacques', 'Chirac', 88);
+INSERT INTO presidents VALUES(2, 'Nicolas', 'Sarkozy', 98);
+INSERT INTO presidents VALUES(3, 'François', 'Hollande', 34);
+
+COMMIT;
+```
+
+### Postgres
+```go
+sql := ds.Postgres()
+```
+
+Will output:
+```sql
+CREATE TABLE IF NOT EXISTS presidents
+(
+	id SERIAL PRIMARY KEY,
+	firstName TEXT,
+	lastName TEXT,
+	gpa NUMERIC
+);
+
+INSERT INTO presidents VALUES(1, 'Jacques', 'Chirac', 88);
+INSERT INTO presidents VALUES(2, 'Nicolas', 'Sarkozy', 98);
+INSERT INTO presidents VALUES(3, 'François', 'Hollande', 34);
+
+COMMIT;
 ```
 
 ## Databooks
