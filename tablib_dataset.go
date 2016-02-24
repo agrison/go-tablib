@@ -258,9 +258,9 @@ func (d *Dataset) insertHeader(index int, header string) {
 	d.cols++
 }
 
-// Valid returns whether the Dataset is valid regarding constraints that have
-// been previously set on coluns.
-func (d *Dataset) Valid() bool {
+// ValidFailFast returns whether the Dataset is valid regarding constraints that have
+// been previously set on columns.
+func (d *Dataset) ValidFailFast() bool {
 	valid := true
 	for i, constraint := range d.constraints {
 		if constraint != nil {
@@ -280,11 +280,11 @@ func (d *Dataset) Valid() bool {
 	return valid
 }
 
-// Validate returns whether the Dataset is valid regarding constraints that have
-// been previously set on coluns.
-// Its behaviour is different of Valid in a sense that it will validate the whole
+// Valid returns whether the Dataset is valid regarding constraints that have
+// been previously set on columns.
+// Its behaviour is different of ValidFailFast in a sense that it will validate the whole
 // Dataset and all the validation errors will be available by using Dataset.ValidationErrors
-func (d *Dataset) Validate() bool {
+func (d *Dataset) Valid() bool {
 	d.ValidationErrors = make([]ValidationError, 0)
 
 	valid := true

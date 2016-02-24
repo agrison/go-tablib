@@ -304,25 +304,25 @@ func mustBeOld(val interface{}) bool {
 	return val.(int) >= 50
 }
 
+func (s *TablibSuite) TestValidFailFast(c *C) {
+	ds := presidentDataset()
+
+	ds.ConstrainColumn("gpa", mustBeYoung)
+	c.Assert(ds.ValidFailFast(), Equals, false)
+
+	ds.ConstrainColumn("gpa", mustBeOld)
+	c.Assert(ds.ValidFailFast(), Equals, true)
+}
+
 func (s *TablibSuite) TestValid(c *C) {
 	ds := presidentDataset()
 
-	ds.ConstrainColumn("gpa", mustBeYoung)
-	c.Assert(ds.Valid(), Equals, false)
-
 	ds.ConstrainColumn("gpa", mustBeOld)
 	c.Assert(ds.Valid(), Equals, true)
-}
-
-func (s *TablibSuite) TestValidate(c *C) {
-	ds := presidentDataset()
-
-	ds.ConstrainColumn("gpa", mustBeOld)
-	c.Assert(ds.Validate(), Equals, true)
 	c.Assert(len(ds.ValidationErrors), Equals, 0)
 
 	ds.ConstrainColumn("gpa", mustBeYoung)
-	c.Assert(ds.Validate(), Equals, false)
+	c.Assert(ds.Valid(), Equals, false)
 	c.Assert(len(ds.ValidationErrors), Equals, 2)
 
 	c.Assert(ds.ValidationErrors[0].Row, Equals, 0)

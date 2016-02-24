@@ -149,6 +149,24 @@ ds.Sort("Year").CSV()
 // Citroen, Picasso II, 2013
 ```
 
+## Constraining
+
+Datasets can have columns constrained by functions and further checked if valid.
+```go
+ds := NewDataset([]string{"Maker", "Model", "Year"})
+ds.AppendValues("Porsche", "991", 2012)
+ds.AppendValues("Skoda", "Octavia", 2011)
+ds.AppendValues("Ferrari", "458", 2009)
+ds.AppendValues("Citroen", "Picasso II", 2013)
+ds.AppendValues("Bentley", "Continental GT", 2003)
+
+ds.ConstrainColumn("Year", func(val interface{}) bool { return val.(int) <= 2008 })
+ds.ValidFailFast() // false
+if !ds.Valid() { // validate the whole dataset, errors are retrieved in Dataset.ValidationErrors
+	ds.ValidationErrors[0] // Row: 4, Column: 2
+}
+```
+
 ## Loading
 
 ### JSON
