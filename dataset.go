@@ -8,6 +8,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/bndr/gotabulate"
 	"github.com/clbanning/mxj"
 	"github.com/tealeg/xlsx"
@@ -20,7 +21,7 @@ import (
 // Dataset represents a set of data, which is a list of data and header for each column.
 type Dataset struct {
 	// EmptyValue represents the string value to b output if a field cannot be
-	// formatted as a string during output of certain formats
+	// formatted as a string during output of certain formats.
 	EmptyValue string
 	headers    []string
 	data       [][]interface{}
@@ -686,7 +687,11 @@ func (d *Dataset) asString(vv interface{}) string {
 	case time.Time:
 		v = vv.(time.Time).Format(time.RFC3339)
 	default:
-		v = d.EmptyValue
+		if d.EmptyValue != "" {
+			v = d.EmptyValue
+		} else {
+			v = fmt.Sprintf("%s", v)
+		}
 	}
 	return v
 }
