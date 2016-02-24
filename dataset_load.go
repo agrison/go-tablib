@@ -5,7 +5,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// LoadYAML loads a dataset from either a YAML source
+// LoadYAML loads a dataset from a YAML source.
 func LoadYAML(yamlContent []byte) (*Dataset, error) {
 	var input []map[string]interface{}
 	if err := yaml.Unmarshal(yamlContent, &input); err != nil {
@@ -15,7 +15,7 @@ func LoadYAML(yamlContent []byte) (*Dataset, error) {
 	return internalLoadFromDict(input)
 }
 
-// LoadJSON loads a dataset from either a JSON source
+// LoadJSON loads a dataset from a JSON source.
 func LoadJSON(jsonContent []byte) (*Dataset, error) {
 	var input []map[string]interface{}
 	if err := json.Unmarshal(jsonContent, &input); err != nil {

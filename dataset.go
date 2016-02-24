@@ -8,7 +8,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/bndr/gotabulate"
 	"github.com/clbanning/mxj"
 	"github.com/tealeg/xlsx"
@@ -20,11 +19,14 @@ import (
 
 // Dataset represents a set of data, which is a list of data and header for each column.
 type Dataset struct {
-	headers []string
-	data    [][]interface{}
-	tags    [][]string
-	rows    int
-	cols    int
+	// EmptyValue represents the string value to b output if a field cannot be
+	// formatted as a string during output of certain formats
+	EmptyValue string
+	headers    []string
+	data       [][]interface{}
+	tags       [][]string
+	rows       int
+	cols       int
 }
 
 // DynamicColumn represents a function that can be evaluated dynamically
@@ -50,7 +52,7 @@ func NewDataset(headers []string) *Dataset {
 
 // NewDatasetWithData creates a new dataset.
 func NewDatasetWithData(headers []string, data [][]interface{}) *Dataset {
-	d := &Dataset{headers, data, make([][]string, 0), len(data), len(headers)}
+	d := &Dataset{"", headers, data, make([][]string, 0), len(data), len(headers)}
 	return d
 }
 
@@ -361,6 +363,14 @@ func (d *Dataset) internalSort(column string, reverse bool) *Dataset {
 // becomes the new header row.
 // TODO
 func (d *Dataset) Transpose() *Dataset {
+	newHeaders := make([]string, 0, d.cols+1)
+	newHeaders = append(newHeaders, d.headers[0])
+	for _, c := range d.Column(d.headers[0]) {
+		newHeaders = append(newHeaders, d.asString(c))
+	}
+
+	nd := NewDataset(newHeaders)
+
 	panic("Transpose() not yet implemented")
 }
 
@@ -577,24 +587,7 @@ func (d *Dataset) Records() [][]string {
 			default:
 				// nothing
 			}
-			switch vv.(type) {
-			case string:
-				records[rowIndex][j] = vv.(string)
-			case int:
-				records[rowIndex][j] = strconv.Itoa(vv.(int))
-			case int64:
-				records[rowIndex][j] = strconv.FormatInt(vv.(int64), 10)
-			case uint64:
-				records[rowIndex][j] = strconv.FormatUint(vv.(uint64), 10)
-			case bool:
-				records[rowIndex][j] = strconv.FormatBool(vv.(bool))
-			case float64:
-				records[rowIndex][j] = strconv.FormatFloat(vv.(float64), 'G', -1, 32)
-			case time.Time:
-				records[rowIndex][j] = vv.(time.Time).Format(time.RFC3339)
-			default:
-				fmt.Printf("Skipping value.")
-			}
+			records[rowIndex][j] = d.asString(vv)
 			j++
 		}
 	}
@@ -609,4 +602,27 @@ func isTagged(tag string, tags []string) bool {
 		}
 	}
 	return false
+}
+
+func (d *Dataset) asString(vv interface{}) string {
+	var v string
+	switch vv.(type) {
+	case string:
+		v = vv.(string)
+	case int:
+		v = strconv.Itoa(vv.(int))
+	case int64:
+		v = strconv.FormatInt(vv.(int64), 10)
+	case uint64:
+		v = strconv.FormatUint(vv.(uint64), 10)
+	case bool:
+		v = strconv.FormatBool(vv.(bool))
+	case float64:
+		v = strconv.FormatFloat(vv.(float64), 'G', -1, 32)
+	case time.Time:
+		v = vv.(time.Time).Format(time.RFC3339)
+	default:
+		v = d.EmptyValue
+	}
+	return v
 }
