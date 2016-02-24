@@ -470,7 +470,10 @@ go get github.com/agrison/go-tablib
 * Support more formats: DBF, XLS, LATEX, ...
 
 ## Contribute
-PRs more than welcomed, come and join :)
+
+It is a work in progress, so it may exist some bugs and edge cases not covered by the test suite.
+
+But we're on Github and this is Open Source, pull requests are more than welcomed, come and have some fun :)
 
 ## Acknowledgement
 
