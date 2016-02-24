@@ -79,7 +79,7 @@ Delete columns:
 ds.DeleteColumn("sex")
 ```
 
-Get a row of multiple rows:
+Get a row or multiple rows:
 ```go
 row, _ := ds.Row(0)
 fmt.Println(row["firstName"]) // George
