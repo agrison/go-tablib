@@ -379,6 +379,8 @@ INSERT INTO presidents VALUES(3, 'François', 'Hollande', 34);
 COMMIT;
 ```
 
+Numeric (`uint`, `int`, `float`, ...) are stored as `DOUBLE`, `string`s as `VARCHAR` with width set to the length of the longest string in the column, and `time.Time`s are stored as `TIMESTAMP`.
+
 ### Postgres
 ```go
 sql := ds.Postgres()
@@ -400,6 +402,8 @@ INSERT INTO presidents VALUES(3, 'François', 'Hollande', 34);
 
 COMMIT;
 ```
+
+Numerics (`uint`, `int`, `float`, ...) are stored as `NUMERIC`, `string`s as `TEXT` and `time.Time`s are stored as `TIMESTAMP`.
 
 ## Databooks
 
