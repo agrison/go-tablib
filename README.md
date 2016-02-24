@@ -79,6 +79,22 @@ Delete columns:
 ds.DeleteColumn("sex")
 ```
 
+Get a row of multiple rows:
+```go
+row, _ := ds.Row(0)
+fmt.Println(row["firstName"]) // George
+
+rows, _ := ds.Rows(0, 1)
+fmt.Println(rows[0]["firstName"]) // George
+fmt.Println(rows[1]["firstName"]) // Thomas
+```
+
+Slice a Dataset:
+```go
+newDs, _ := ds.Slice(1, 5) // returns a fresh Dataset with rows [1..5[
+```
+
+
 ## Filtering
 
 You can add **tags** to rows by using a specific `Dataset` method. This allows you to filter your `Dataset` later. This can be useful to separate rows of data based on arbitrary criteria (e.g. origin) that you don’t want to include in your `Dataset`.
