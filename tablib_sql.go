@@ -88,8 +88,8 @@ func (d *Dataset) Postgres(table string) string {
 func (d *Dataset) sql(table, dbType string) string {
 	var b bytes.Buffer
 
-	tableSql, columnTypes, columnValues := d.createTable(table, dbType)
-	b.WriteString(tableSql)
+	tableSQL, columnTypes, columnValues := d.createTable(table, dbType)
+	b.WriteString(tableSQL)
 
 	reg, _ := regexp.Compile("[']")
 	// inserts
