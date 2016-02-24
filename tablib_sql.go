@@ -11,6 +11,9 @@ import (
 var (
 	typePostgres = "postgres"
 	typeMySQL    = "mysql"
+	defaults     = map[string]string{"various." + typePostgres: "TEXT",
+		"various." + typeMySQL: "VARCHAR(100)", "numeric." + typePostgres: "NUMERIC",
+		"numeric." + typeMySQL: "DOUBLE"}
 )
 
 // columnSQLType determines the type of a column
@@ -48,17 +51,11 @@ func (d *Dataset) columnSQLType(header, dbType string) (string, []interface{}) {
 	}
 
 	if types > 1 {
-		if dbType == typePostgres {
-			return "TEXT", values
-		}
-		return "VARCHAR(100)", values
+		return defaults["various."+dbType], values
 	}
 	switch currentType {
 	case "numeric":
-		if dbType == typePostgres {
-			return "NUMERIC", values
-		}
-		return "DOUBLE", values
+		return defaults["numeric."+dbType], values
 	case "time":
 		return "TIMESTAMP", values
 	default:
