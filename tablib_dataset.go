@@ -139,6 +139,32 @@ func (d *Dataset) InsertTagged(index int, row []interface{}, tags ...string) err
 	return nil
 }
 
+// Tag tags a row at a given index with specific tags.
+// Returns ErrInvalidRowIndex if the row does not exist.
+func (d *Dataset) Tag(index int, tags ...string) error {
+	if index < 0 || index >= d.rows {
+		return ErrInvalidRowIndex
+	}
+
+	for _, tag := range tags {
+		if !isTagged(tag, d.tags[index]) {
+			d.tags[index] = append(d.tags[index], tag)
+		}
+	}
+
+	return nil
+}
+
+// Tags returns the tags of a row at a given index.
+// Returns ErrInvalidRowIndex if the row does not exist.
+func (d *Dataset) Tags(index int) ([]string, error) {
+	if index < 0 || index >= d.rows {
+		return nil, ErrInvalidRowIndex
+	}
+
+	return d.tags[index], nil
+}
+
 // AppendColumn appends a new column with values to the Dataset.
 func (d *Dataset) AppendColumn(header string, cols []interface{}) error {
 	if len(cols) != d.rows {

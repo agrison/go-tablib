@@ -107,7 +107,8 @@ ds.AppendTagged([]interface{}{"Porsche", "911"}, "fast", "luxury")
 ds.AppendTagged([]interface{}{"Skoda", "Octavia"}, "family")
 ds.AppendTagged([]interface{}{"Ferrari", "458"}, "fast", "luxury")
 ds.AppendValues("Citroen", "Picasso")
-ds.AppendTagged([]interface{}{"Bentley", "Continental"}, "luxury")
+ds.AppendTagged("Bentley", "Continental")
+ds.Tag(4, "luxury") // Bentley
 ```
 
 Filtering the `Dataset` is possible by calling `Filter(column)`:
@@ -127,6 +128,8 @@ fastCars := ds.Filter("fast").CSV()
 // Porsche,911
 // Ferrari,458
 ```
+
+Tags at a specific row can be retrieved by calling `Dataset.Tags(index int)`
 
 ## Sorting
 

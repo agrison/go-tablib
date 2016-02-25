@@ -259,6 +259,11 @@ func (s *TablibSuite) TestFiltering(c *C) {
 	df = ds.Filter("Woot")
 	c.Assert(df.Height(), Equals, 0)
 	c.Assert(df.Width(), Equals, 3)
+
+	df = ds.Filter("Virginia")
+	tags, _ := df.Tags(1) // Jefferson
+	c.Assert(len(tags), Equals, 1)
+	c.Assert(tags[0], Equals, "Virginia")
 }
 
 func (s *TablibSuite) TestSort(c *C) {
