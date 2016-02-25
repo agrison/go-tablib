@@ -600,6 +600,10 @@ func (s *TablibSuite) TestLoadDatabookYAML(c *C) {
 	c.Assert(db.Sheet("Cars").Dataset().Height(), Equals, 5)
 	c.Assert(db.Sheet("Presidents").Title(), Equals, "Presidents")
 	c.Assert(db.Sheet("Presidents").Dataset().Height(), Equals, 3)
+
+	c.Assert(len(db.Sheets()), Equals, 2)
+	db.Wipe()
+	c.Assert(db.Size(), Equals, 0)
 }
 
 // ---------- Benchmarking ----------

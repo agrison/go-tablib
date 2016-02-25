@@ -12,6 +12,7 @@
 - Loading Datasets
   - CSV
   - TSV
+- Unit test coverage
 
 ### 2016-02-24
 
