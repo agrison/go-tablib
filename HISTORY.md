@@ -9,6 +9,9 @@
 - Loading Databooks
   - JSON
   - YAML
+- Loading Datasets
+  - CSV
+  - TSV
 
 ### 2016-02-24
 
