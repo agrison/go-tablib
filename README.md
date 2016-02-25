@@ -33,7 +33,7 @@ Loading formats supported:
 ## Overview
 
 ### tablib.Dataset
-A Dataset is a table of tabular data. It may or may not have a header row. They can be build and manipulated as raw Python datatypes (Lists of tuples|dictionaries). Datasets can be exported to JSON, YAML, CSV, TSV, and XML.
+A Dataset is a table of tabular data. It must have a header row. Datasets can be exported to JSON, YAML, CSV, TSV, and XML. They can be filtered, sorted and validated against constraint on columns.
 
 ### tablib.Databook
 A Databook is a set of Datasets. The most common form of a Databook is an Excel file with multiple spreadsheets. Databooks can be exported to JSON, YAML and XML.
