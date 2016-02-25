@@ -312,7 +312,10 @@ func mustBeOld(val interface{}) bool {
 func (s *TablibSuite) TestValidFailFast(c *C) {
 	ds := presidentDataset()
 
+	c.Assert(ds.HasAnyConstraint(), Equals, false)
+
 	ds.ConstrainColumn("gpa", mustBeYoung)
+	c.Assert(ds.HasAnyConstraint(), Equals, true)
 	c.Assert(ds.ValidFailFast(), Equals, false)
 
 	ds.ConstrainColumn("gpa", mustBeOld)
@@ -322,7 +325,11 @@ func (s *TablibSuite) TestValidFailFast(c *C) {
 func (s *TablibSuite) TestValid(c *C) {
 	ds := presidentDataset()
 
+	c.Assert(ds.HasAnyConstraint(), Equals, false)
+
 	ds.ConstrainColumn("gpa", mustBeOld)
+
+	c.Assert(ds.HasAnyConstraint(), Equals, true)
 	c.Assert(ds.Valid(), Equals, true)
 	c.Assert(len(ds.ValidationErrors), Equals, 0)
 
@@ -335,6 +342,48 @@ func (s *TablibSuite) TestValid(c *C) {
 
 	c.Assert(ds.ValidationErrors[1].Row, Equals, 1)
 	c.Assert(ds.ValidationErrors[1].Column, Equals, 2)
+}
+
+func (s *TablibSuite) TestValidSubset(c *C) {
+	ds := presidentDatasetWithTags()
+
+	c.Assert(ds.Valid(), Equals, true)
+	c.Assert(ds.ValidSubset(), Equals, ds)
+
+	ds.ConstrainColumn("gpa", mustBeYoung)
+	c.Assert(ds.Valid(), Equals, false)
+	c.Assert(len(ds.ValidationErrors), Equals, 2)
+
+	// Height is 1
+	df := ds.ValidSubset()
+	c.Assert(df.Height(), Equals, 1)
+	c.Assert(df.HasAnyConstraint(), Equals, false)
+	r := validRowAt(df, 0)
+	c.Assert(r["firstName"], Equals, "Thomas")
+	tags, _ := df.Tags(0)
+	c.Assert(tags[0], Equals, "Virginia")
+}
+
+func (s *TablibSuite) TestInvalidSubset(c *C) {
+	ds := presidentDatasetWithTags()
+
+	c.Assert(ds.Valid(), Equals, true)
+	c.Assert(ds.InvalidSubset(), Equals, ds)
+
+	ds.ConstrainColumn("gpa", mustBeYoung)
+	c.Assert(ds.Valid(), Equals, false)
+	c.Assert(len(ds.ValidationErrors), Equals, 2)
+
+	// Height is 2
+	df := ds.InvalidSubset()
+	c.Assert(df.Height(), Equals, 2)
+	c.Assert(df.HasAnyConstraint(), Equals, false)
+	r := validRowAt(df, 0)
+	c.Assert(r["firstName"], Equals, "John")
+	tags, _ := df.Tags(0)
+	c.Assert(tags[0], Equals, "Massachusetts")
+	r = validRowAt(df, 1)
+	c.Assert(r["firstName"], Equals, "George")
 }
 
 func (s *TablibSuite) TestJSON(c *C) {

@@ -348,6 +348,84 @@ func (d *Dataset) Valid() bool {
 	return valid
 }
 
+// HasAnyConstraint returns whether the Dataset has any constraint set.
+func (d *Dataset) HasAnyConstraint() bool {
+	hasConstraint := false
+	for _, constraint := range d.constraints {
+		if constraint != nil {
+			hasConstraint = true
+			break
+		}
+	}
+	return hasConstraint
+}
+
+// ValidSubset return a new Dataset containing only the rows validating their
+// constraints. This is similar to what Filter() does with tags, but with constraints.
+// If no constraints are set, it returns the same instance.
+// Note: The returned Dataset is free of any constraints, tags are conserved.
+func (d *Dataset) ValidSubset() *Dataset {
+	return d.internalValidSubset(true)
+}
+
+// InvalidSubset return a new Dataset containing only the rows failing to validate their
+// constraints.
+// If no constraints are set, it returns the same instance.
+// Note: The returned Dataset is free of any constraints, tags are conserved.
+func (d *Dataset) InvalidSubset() *Dataset {
+	return d.internalValidSubset(false)
+}
+
+// internalValidSubset return a new Dataset containing only the rows validating their
+// constraints or not depending on its parameter `valid`.
+func (d *Dataset) internalValidSubset(valid bool) *Dataset {
+	if !d.HasAnyConstraint() {
+		return d
+	}
+
+	nd := NewDataset(d.headers)
+	nd.data = make([][]interface{}, 0)
+	ndRowIndex := 0
+	nd.tags = make([][]string, 0)
+
+	for i, row := range d.data {
+		keep := true
+		for j, val := range d.data[i] {
+			if d.constraints[j] != nil {
+				switch val.(type) {
+				case DynamicColumn:
+					if valid {
+						keep = d.constraints[j]((val.(DynamicColumn))(row))
+					} else {
+						keep = !d.constraints[j]((val.(DynamicColumn))(row))
+					}
+				default:
+					if valid {
+						keep = d.constraints[j](val)
+					} else {
+						keep = !d.constraints[j](val)
+					}
+				}
+			}
+			if valid && !keep {
+				break
+			}
+		}
+		if keep {
+			nd.data = append(nd.data, make([]interface{}, 0, nd.cols))
+			nd.data[ndRowIndex] = append(nd.data[ndRowIndex], row...)
+
+			nd.tags = append(nd.tags, make([]string, 0, nd.cols))
+			nd.tags[ndRowIndex] = append(nd.tags[ndRowIndex], d.tags[i]...)
+			ndRowIndex++
+		}
+	}
+	nd.cols = d.cols
+	nd.rows = ndRowIndex
+
+	return nd
+}
+
 // Stack stacks two Dataset by joining at the row level, and return new combined Dataset.
 func (d *Dataset) Stack(other *Dataset) (*Dataset, error) {
 	if d.Width() != other.Width() {

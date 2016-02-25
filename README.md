@@ -163,11 +163,44 @@ ds.AppendValues("Ferrari", "458", 2009)
 ds.AppendValues("Citroen", "Picasso II", 2013)
 ds.AppendValues("Bentley", "Continental GT", 2003)
 
-ds.ConstrainColumn("Year", func(val interface{}) bool { return val.(int) <= 2008 })
+ds.ConstrainColumn("Year", func(val interface{}) bool { return val.(int) > 2008 })
 ds.ValidFailFast() // false
 if !ds.Valid() { // validate the whole dataset, errors are retrieved in Dataset.ValidationErrors
 	ds.ValidationErrors[0] // Row: 4, Column: 2
 }
+```
+
+A Dataset with constrained columns can be filtered to keep only the rows satisfying the constraints.
+```go
+ds.ValidSubset().Tabular("simple") // Cars after 2008
+```
+
+Will output:
+```
+------------  ---------------  ---------
+      Maker            Model       Year
+------------  ---------------  ---------
+    Porsche              991       2012
+
+      Skoda          Octavia       2011
+
+    Ferrari              458       2009
+
+    Citroen       Picasso II       2013
+------------  ---------------  ---------
+```
+
+```go
+ds.InvalidSubset().Tabular("simple") // Cars before 2008
+```
+
+Will output:
+```
+------------  -------------------  ---------
+      Maker                Model       Year
+------------  -------------------  ---------
+    Bentley       Continental GT       2003
+------------  -------------------  ---------
 ```
 
 ## Loading
