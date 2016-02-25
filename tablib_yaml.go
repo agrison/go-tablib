@@ -12,6 +12,34 @@ func LoadYAML(yamlContent []byte) (*Dataset, error) {
 	return internalLoadFromDict(input)
 }
 
+// LoadDatabookYAML loads a Databook from a YAML source.
+func LoadDatabookYAML(yamlContent []byte) (*Databook, error) {
+	var input []map[string]interface{}
+	var internalInput []map[string]interface{}
+	if err := yaml.Unmarshal(yamlContent, &input); err != nil {
+		return nil, err
+	}
+
+	db := NewDatabook()
+	for _, d := range input {
+		b, err := yaml.Marshal(d["data"])
+		if err != nil {
+			return nil, err
+		}
+		if err := yaml.Unmarshal(b, &internalInput); err != nil {
+			return nil, err
+		}
+
+		if ds, err := internalLoadFromDict(internalInput); err == nil {
+			db.AddSheet(d["title"].(string), ds)
+		} else {
+			return nil, err
+		}
+	}
+
+	return db, nil
+}
+
 // YAML returns a YAML representation of the Dataset as string.
 func (d *Dataset) YAML() (string, error) {
 	back := d.Dict()
@@ -30,7 +58,8 @@ func (d *Databook) YAML() (string, error) {
 	for _, s := range d.sheets {
 		y[i] = make(map[string]interface{})
 		y[i]["title"] = s.title
-		y[i]["dataset"] = s.dataset.Dict()
+		y[i]["data"] = s.dataset.Dict()
+		i++
 	}
 	b, err := yaml.Marshal(y)
 	if err != nil {

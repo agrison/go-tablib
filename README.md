@@ -26,8 +26,8 @@ Export formats supported:
 
 Loading formats supported:
 
-* JSON (Sets)
-* YAML (Sets)
+* JSON (Sets + Books)
+* YAML (Sets + Books)
 
 
 ## Overview
@@ -447,6 +447,10 @@ This is an example of how to use Databooks.
 
 ```go
 db := NewDatabook()
+// or loading a JSON content
+db, err := LoadDatabookJSON([]byte(`...`))
+// or a YAML content
+db, err := LoadDatabookYAML([]byte(`...`))
 
 // a dataset of presidents
 presidents, _ := LoadJSON([]byte(`[

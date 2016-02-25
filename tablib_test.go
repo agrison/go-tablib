@@ -1,6 +1,7 @@
 package tablib_test
 
 import (
+	"bytes"
 	"encoding/base64"
 	tablib "github.com/agrison/go-tablib"
 	. "gopkg.in/check.v1"
@@ -521,6 +522,84 @@ INSERT INTO presidents VALUES(3, 'François', 'Hollande', 34);
 
 COMMIT;
 `)
+}
+
+func (s *TablibSuite) TestLoadDatabookJSON(c *C) {
+	var b bytes.Buffer
+	b.WriteString(`[
+	  {
+	    "title": "Cars",
+	    "data": [
+	      {"Maker":"Bentley","Model":"Continental GT","Year":2003},
+	      {"Maker":"Ferrari","Model":"458","Year":2009},
+	      {"Maker":"Skoda","Model":"Octavia","Year":2011},
+	      {"Maker":"Porsche","Model":"991","Year":2012},
+	      {"Maker":"Citroen","Model":"Picasso II","Year":2013}
+	    ]
+	  },
+	  {
+	    "title": "Presidents",
+	    "data": [
+	      {"Age":90,"First name":"John","Last name":"Adams"},
+	      {"Age":83,"First name":"Henry","Last name":"Ford"},
+	      {"Age":67,"First name":"George","Last name":"Washington"}
+	    ]
+	  }
+	]`)
+	db, _ := tablib.LoadDatabookJSON(b.Bytes())
+	c.Assert(db.Size(), Equals, 2)
+	c.Assert(db.Sheet("Cars").Title(), Equals, "Cars")
+	c.Assert(db.Sheet("Cars").Dataset().Height(), Equals, 5)
+	c.Assert(db.Sheet("Presidents").Title(), Equals, "Presidents")
+	c.Assert(db.Sheet("Presidents").Dataset().Height(), Equals, 3)
+}
+
+func (s *TablibSuite) TestLoadDatabookYAML(c *C) {
+	var b bytes.Buffer
+	b.WriteString(`- data:
+  - Maker: Bentley
+    Model: Continental GT
+    Year: 2003
+  - Maker: Ferrari
+    Model: "458"
+    Year: 2009
+  - Maker: Skoda
+    Model: Octavia
+    Year: 2011
+  - Maker: Porsche
+    Model: "991"
+    Year: 2012
+  - Maker: Citroen
+    Model: Picasso II
+    Year: 2013
+  title: Cars
+- data:
+  - Age: 90
+    First name: John
+    Last name: Adams
+    Maker: Bentley
+    Model: Continental GT
+    Year: 2003
+  - Age: 83
+    First name: Henry
+    Last name: Ford
+    Maker: Ferrari
+    Model: "458"
+    Year: 2009
+  - Age: 67
+    First name: George
+    Last name: Washington
+    Maker: Skoda
+    Model: Octavia
+    Year: 2011
+  title: Presidents
+`)
+	db, _ := tablib.LoadDatabookYAML(b.Bytes())
+	c.Assert(db.Size(), Equals, 2)
+	c.Assert(db.Sheet("Cars").Title(), Equals, "Cars")
+	c.Assert(db.Sheet("Cars").Dataset().Height(), Equals, 5)
+	c.Assert(db.Sheet("Presidents").Title(), Equals, "Presidents")
+	c.Assert(db.Sheet("Presidents").Dataset().Height(), Equals, 3)
 }
 
 // ---------- Benchmarking ----------

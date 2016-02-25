@@ -1,6 +1,8 @@
 package tablib
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 // LoadJSON loads a dataset from a YAML source.
 func LoadJSON(jsonContent []byte) (*Dataset, error) {
@@ -10,6 +12,34 @@ func LoadJSON(jsonContent []byte) (*Dataset, error) {
 	}
 
 	return internalLoadFromDict(input)
+}
+
+// LoadDatabookJSON loads a Databook from a JSON source.
+func LoadDatabookJSON(jsonContent []byte) (*Databook, error) {
+	var input []map[string]interface{}
+	var internalInput []map[string]interface{}
+	if err := json.Unmarshal(jsonContent, &input); err != nil {
+		return nil, err
+	}
+
+	db := NewDatabook()
+	for _, d := range input {
+		b, err := json.Marshal(d["data"])
+		if err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(b, &internalInput); err != nil {
+			return nil, err
+		}
+
+		if ds, err := internalLoadFromDict(internalInput); err == nil {
+			db.AddSheet(d["title"].(string), ds)
+		} else {
+			return nil, err
+		}
+	}
+
+	return db, nil
 }
 
 // JSON returns a JSON representation of the Dataset as string.

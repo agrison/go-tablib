@@ -6,6 +6,9 @@
   - `Dataset.ValidSubset()`
   - `Dataset.InvalidSubset()`
 - Tagging a specific row after it was already created
+- Loading Databooks
+  - JSON
+  - YAML
 
 ### 2016-02-24
 
