@@ -3,8 +3,8 @@
 ### 2016-02-25
 
 * Constrained columns
-** `Dataset.ValidSubset()`
-** `Dataset.InvalidSubset()`
+⋅⋅* `Dataset.ValidSubset()`
+⋅⋅* `Dataset.InvalidSubset()`
 * Tagging a specific row after it was already created
 
 ### 2016-02-24
@@ -14,15 +14,15 @@
 * Source files refactoring
 * Added on travis-ci
 * Retrieving specific rows
-** `Dataset.Row(int)`
-** `Dataset.Rows(int...)`
-** `Dataset.Slice(int, int)`
+⋅⋅* `Dataset.Row(int)`
+⋅⋅* `Dataset.Rows(int...)`
+⋅⋅* `Dataset.Slice(int, int)`
 
 ### 2016-02-23
 
 * First release with support for:
-** Loading YAML, JSON
-** Exporting YAML, JSON, CSV, TSV, XLS, XML, ASCII
-** Filtering + Tagging
-** Sorting
-** ...
+⋅⋅* Loading YAML, JSON
+⋅⋅* Exporting YAML, JSON, CSV, TSV, XLS, XML, ASCII
+⋅⋅* Filtering + Tagging
+⋅⋅* Sorting
+⋅⋅* ...
