@@ -258,7 +258,8 @@ func (d *Dataset) InsertDynamicColumn(index int, header string, fn DynamicColumn
 }
 
 // InsertConstrainedColumn insert a new constrained column at a given index.
-func (d *Dataset) InsertConstrainedColumn(index int, header string, constraint ColumnConstraint, cols []interface{}) error {
+func (d *Dataset) InsertConstrainedColumn(index int, header string,
+	constraint ColumnConstraint, cols []interface{}) error {
 	err := d.InsertColumn(index, header, cols)
 	if err != nil {
 		return err
@@ -289,10 +290,19 @@ func (d *Dataset) insertHeader(index int, header string) {
 // been previously set on columns.
 func (d *Dataset) ValidFailFast() bool {
 	valid := true
-	for i, constraint := range d.constraints {
+	for column, constraint := range d.constraints {
 		if constraint != nil {
-			for _, val := range d.Column(d.headers[i]) {
-				if !constraint(val) {
+			for row, val := range d.Column(d.headers[column]) {
+				cellIsValid := true
+
+				switch val.(type) {
+				case DynamicColumn:
+					cellIsValid = constraint((val.(DynamicColumn))(d.data[row]))
+				default:
+					cellIsValid = constraint(val)
+				}
+
+				if !cellIsValid {
 					valid = false
 					break
 				}
@@ -318,7 +328,16 @@ func (d *Dataset) Valid() bool {
 	for column, constraint := range d.constraints {
 		if constraint != nil {
 			for row, val := range d.Column(d.headers[column]) {
-				if !constraint(val) {
+				cellIsValid := true
+
+				switch val.(type) {
+				case DynamicColumn:
+					cellIsValid = constraint((val.(DynamicColumn))(d.data[row]))
+				default:
+					cellIsValid = constraint(val)
+				}
+
+				if !cellIsValid {
 					d.ValidationErrors = append(d.ValidationErrors,
 						ValidationError{Row: row, Column: column})
 					valid = false
