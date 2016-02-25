@@ -636,6 +636,32 @@ Citroen` + "\t" + `Picasso II` + "\t" + `2013`)
 	c.Assert(r["Maker"], Equals, "Bentley")
 }
 
+func (s *TablibSuite) TestLoadXML(c *C) {
+	var b bytes.Buffer
+	b.WriteString(`<dataset>
+ <row>
+   <age>90</age>
+   <firstName>John</firstName>
+   <lastName>Adams</lastName>
+ </row>  <row>
+   <age>67</age>
+   <firstName>George</firstName>
+   <lastName>Washington</lastName>
+ </row>  <row>
+   <age>83</age>
+   <firstName>Henry</firstName>
+   <lastName>Ford</lastName>
+ </row>
+</dataset>`)
+	ds, _ := tablib.LoadXML(b.Bytes())
+	c.Assert(ds.Height(), Equals, 3)
+	c.Assert(ds.Width(), Equals, 3)
+	r, _ := ds.Row(0)
+	c.Assert(r["firstName"], Equals, "John")
+	r, _ = ds.Row(1)
+	c.Assert(r["lastName"], Equals, "Washington")
+}
+
 // ---------- Benchmarking ----------
 
 func (s *TablibSuite) BenchmarkAppendRow(c *C) {
