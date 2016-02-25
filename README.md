@@ -28,6 +28,8 @@ Loading formats supported:
 
 * JSON (Sets + Books)
 * YAML (Sets + Books)
+* CSV (Sets)
+* TSV (Sets)
 
 
 ## Overview

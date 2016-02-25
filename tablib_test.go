@@ -606,6 +606,36 @@ func (s *TablibSuite) TestLoadDatabookYAML(c *C) {
 	c.Assert(db.Size(), Equals, 0)
 }
 
+func (s *TablibSuite) TestLoadCSV(c *C) {
+	var b bytes.Buffer
+	b.WriteString(`Maker, Model, Year
+Bentley, Continental GT, 2003
+Ferrari, 458, 2009
+Skoda, Octavia, 2011
+Porsche, 991, 2012
+Citroen, Picasso II, 2013`)
+	ds, _ := tablib.LoadCSV(b.Bytes())
+	c.Assert(ds.Height(), Equals, 5)
+	c.Assert(ds.Width(), Equals, 3)
+	r, _ := ds.Row(0)
+	c.Assert(r["Maker"], Equals, "Bentley")
+}
+
+func (s *TablibSuite) TestLoadTSV(c *C) {
+	var b bytes.Buffer
+	b.WriteString(`Maker` + "\t" + `Model` + "\t" + `Year
+Bentley` + "\t" + `Continental GT` + "\t" + `2003
+Ferrari` + "\t" + `458` + "\t" + `2009
+Skoda` + "\t" + `Octavia` + "\t" + `2011
+Porsche` + "\t" + `991` + "\t" + `2012
+Citroen` + "\t" + `Picasso II` + "\t" + `2013`)
+	ds, _ := tablib.LoadTSV(b.Bytes())
+	c.Assert(ds.Height(), Equals, 5)
+	c.Assert(ds.Width(), Equals, 3)
+	r, _ := ds.Row(0)
+	c.Assert(r["Maker"], Equals, "Bentley")
+}
+
 // ---------- Benchmarking ----------
 
 func (s *TablibSuite) BenchmarkAppendRow(c *C) {
