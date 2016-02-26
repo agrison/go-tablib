@@ -12,13 +12,13 @@ var (
 	// TabularGrid is the value to be passed to gotabulate to render the table
 	// as ASCII table with grid format
 	TabularGrid = "grid"
-	// TabularGrid is the value to be passed to gotabulate to render the table
+	// TabularSimple is the value to be passed to gotabulate to render the table
 	// as ASCII table with simple format
 	TabularSimple = "simple"
-	// TabularGrid is the value to be passed to gotabulate to render the table
+	// TabularCondensed is the value to be passed to gotabulate to render the table
 	// as ASCII table with condensed format
 	TabularCondensed = "condensed"
-	// TabularGrid is the value to be passed to gotabulate to render the table
+	// TabularMarkdown is the value to be passed to gotabulate to render the table
 	// as ASCII table with Markdown format
 	TabularMarkdown = "markdown"
 )
