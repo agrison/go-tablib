@@ -461,7 +461,7 @@ func (s *TablibSuite) TestHTML(c *C) {
 
 func (s *TablibSuite) TestTabular(c *C) {
 	ds := frenchPresidentDataset()
-	j := ds.Tabular("grid")
+	j := ds.Tabular(tablib.TabularGrid)
 	c.Assert(j, Equals, `+--------------+-------------+--------+
 |    firstName |    lastName |    gpa |
 +==============+=============+========+
@@ -473,7 +473,7 @@ func (s *TablibSuite) TestTabular(c *C) {
 +--------------+-------------+--------+
 `)
 
-	j = ds.Tabular("simple")
+	j = ds.Tabular(tablib.TabularSimple)
 	c.Assert(j, Equals, `--------------  -------------  --------`+"\n"+
 		`    firstName       lastName       gpa `+"\n"+
 		`--------------  -------------  --------`+"\n"+
@@ -481,6 +481,16 @@ func (s *TablibSuite) TestTabular(c *C) {
 		"\n"+
 		`      Nicolas        Sarkozy        98 `+"\n"+
 		"\n"+
+		`     François       Hollande        34 `+"\n"+
+		`--------------  -------------  --------`+
+		"\n")
+
+	j = ds.Tabular(tablib.TabularCondensed)
+	c.Assert(j, Equals, `--------------  -------------  --------`+"\n"+
+		`    firstName       lastName       gpa `+"\n"+
+		`--------------  -------------  --------`+"\n"+
+		`      Jacques         Chirac        88 `+"\n"+
+		`      Nicolas        Sarkozy        98 `+"\n"+
 		`     François       Hollande        34 `+"\n"+
 		`--------------  -------------  --------`+
 		"\n")
