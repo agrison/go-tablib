@@ -54,9 +54,11 @@ func (d *Dataset) Tabular(format string) string {
 				ipos := 0
 				b.WriteString("| ")
 				for _, pos := range positions {
-					b.WriteString(line[ipos:pos])
-					b.WriteString(" | ")
-					ipos = pos + 1
+					if ipos < len(line) && pos < len(line) {
+						b.WriteString(line[ipos:pos])
+						b.WriteString(" | ")
+						ipos = pos + 1
+					}
 				}
 				b.WriteString(line[ipos:])
 				b.WriteString(" | \n")
