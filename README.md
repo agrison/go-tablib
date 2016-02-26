@@ -362,7 +362,7 @@ xlsx, _ := ds.XLSX()
 
 #### Grid format
 ```go
-ascii := ds.Tabular("grid")
+ascii := ds.Tabular("grid" /* tablib.TabularGrid */)
 ```
 
 Will output:
@@ -380,7 +380,7 @@ Will output:
 
 #### Simple format
 ```go
-ascii := ds.Tabular("simple")
+ascii := ds.Tabular("simple" /* tablib.TabularSimple */)
 ```
 
 Will output:
@@ -392,6 +392,22 @@ Will output:
 
         Henry             Ford        67
 
+          Foo              Bar        83
+--------------  ---------------  --------
+```
+
+#### Condensed format
+```go
+ascii := ds.Tabular("condensed" /* tablib.TabularCondensed */)
+```
+
+Similar to simple but with less line feed:
+```
+--------------  ---------------  --------
+    firstName         lastName       age
+--------------  ---------------  --------
+       George       Washington        90
+        Henry             Ford        67
           Foo              Bar        83
 --------------  ---------------  --------
 ```
