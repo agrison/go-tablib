@@ -625,7 +625,8 @@ func (d *Dataset) internalSort(column string, reverse bool) *Dataset {
 
 // Transpose transposes a Dataset, turning rows into columns and vice versa,
 // returning a new Dataset instance. The first row of the original instance
-// becomes the new header row.
+// becomes the new header row. Tags, constraints and dynamic columns are lost
+// in the returned Dataset.
 // TODO
 func (d *Dataset) Transpose() *Dataset {
 	newHeaders := make([]string, 0, d.cols+1)
@@ -634,9 +635,17 @@ func (d *Dataset) Transpose() *Dataset {
 		newHeaders = append(newHeaders, d.asString(c))
 	}
 
-	//nd := NewDataset(newHeaders)
+	nd := NewDataset(newHeaders)
+	nd.data = make([][]interface{}, 0, d.cols)
+	for i := 1; i < d.cols; i++ {
+		nd.data = append(nd.data, make([]interface{}, 0, d.rows))
+		nd.data[i-1] = make([]interface{}, 0, d.rows)
+		nd.data[i-1] = append(nd.data[i-1], d.headers[i])
+		nd.data[i-1] = append(nd.data[i-1], d.Column(d.headers[i])...)
+	}
+	nd.rows = d.cols - 1
 
-	panic("Transpose() not yet implemented")
+	return nd
 }
 
 // DeleteRow deletes a row at a specific index

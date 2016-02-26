@@ -46,6 +46,16 @@ func frenchPresidentAdditionalDataset() *tablib.Dataset {
 	return ds
 }
 
+func carDataset() *tablib.Dataset {
+	ds := tablib.NewDataset([]string{"Maker", "Model", "Year"})
+	ds.AppendValues("Porsche", "991", 2012)
+	ds.AppendValues("Skoda", "Octavia", 2011)
+	ds.AppendValues("Ferrari", "458", 2009)
+	ds.AppendValues("Citroen", "Picasso II", 2013)
+	ds.AppendValues("Bentley", "Continental GT", 2003)
+	return ds
+}
+
 func validRowAt(d *tablib.Dataset, index int) map[string]interface{} {
 	row, _ := d.Row(index)
 	return row
@@ -206,6 +216,21 @@ func (s *TablibSuite) TestSlice(c *C) {
 	row, _ = s2.Row(1)
 	c.Assert(row["firstName"], Equals, "Thomas")
 	c.Assert(row["lastName"], Equals, "Jefferson")
+}
+
+func (s *TablibSuite) TestTranspose(c *C) {
+	tr := carDataset().Transpose()
+	c.Assert(tr.Headers()[0], Equals, "Maker")
+	c.Assert(tr.Headers()[1], Equals, "Porsche")
+	c.Assert(tr.Headers()[2], Equals, "Skoda")
+	c.Assert(len(tr.Headers()), Equals, 6)
+	r := validRowAt(tr, 0) // Model
+	c.Assert(r["Porsche"], Equals, "991")
+	c.Assert(r["Bentley"], Equals, "Continental GT")
+	r = validRowAt(tr, 1) // Year
+	c.Assert(r["Porsche"], Equals, 2012)
+	c.Assert(r["Skoda"], Equals, 2011)
+	c.Assert(r["Bentley"], Equals, 2003)
 }
 
 func (s *TablibSuite) TestStack(c *C) {
