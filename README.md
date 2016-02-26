@@ -20,7 +20,7 @@ Export formats supported:
 * XML (Sets + Books)
 * TSV (Sets)
 * CSV (Sets)
-* ASCII (Sets)
+* ASCII + Markdown (Sets)
 * MySQL (Sets)
 * Postgres (Sets)
 
@@ -411,6 +411,32 @@ Similar to simple but with less line feed:
           Foo              Bar        83
 --------------  ---------------  --------
 ```
+
+### Markdown
+
+Markdown tables are similar to the Tabular condensed format, except that they have
+pipe characters separating columns.
+
+```go
+mkd := ds.Tabular("markdown" /* tablib.TabularMarkdown */)
+```
+
+Will output:
+```
+|     firstName   |       lastName    |    gpa  |
+| --------------  | ---------------   | ------- |
+|          John   |          Adams    |     90  |
+|        George   |     Washington    |     67  |
+|        Thomas   |      Jefferson    |     50  |
+```
+
+Which equals to the following when rendered as HTML:
+
+|     firstName   |       lastName    |    gpa  |
+| --------------  | ---------------   | ------- |
+|          John   |          Adams    |     90  |
+|        George   |     Washington    |     67  |
+|        Thomas   |      Jefferson    |     50  |
 
 ### MySQL
 ```go

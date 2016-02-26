@@ -494,6 +494,13 @@ func (s *TablibSuite) TestTabular(c *C) {
 		`     François       Hollande        34 `+"\n"+
 		`--------------  -------------  --------`+
 		"\n")
+
+	j = presidentDataset().Tabular(tablib.TabularMarkdown)
+	c.Assert(j, Equals, `|     firstName   |       lastName    |    gpa  |`+" \n"+
+		`| --------------  | ---------------   | ------- |`+" \n"+
+		`|          John   |          Adams    |     90  |`+" \n"+
+		`|        George   |     Washington    |     67  |`+" \n"+
+		`|        Thomas   |      Jefferson    |     50  |`+" \n")
 }
 
 func (s *TablibSuite) TestMySQL(c *C) {
