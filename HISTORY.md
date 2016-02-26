@@ -1,5 +1,8 @@
 ## History
 
+### 2016-02-26
+- Added support for Markdown tables export
+
 ### 2016-02-25
 
 - Constrained columns
