@@ -23,8 +23,13 @@ var (
 	TabularMarkdown = "markdown"
 )
 
+// Markdown returns a Markdown table string representation of the Dataset.
+func (d *Dataset) Markdown() string {
+	return d.Tabular(TabularMarkdown)
+}
+
 // Tabular returns a tabular string representation of the Dataset.
-// format is either grid, simple or condensed.
+// format is either grid, simple, condensed or markdown.
 func (d *Dataset) Tabular(format string) string {
 	back := d.Records()
 	t := gotabulate.Create(back)

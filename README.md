@@ -418,6 +418,7 @@ Markdown tables are similar to the Tabular condensed format, except that they ha
 pipe characters separating columns.
 
 ```go
+mkd := ds.Markdown() // or
 mkd := ds.Tabular("markdown" /* tablib.TabularMarkdown */)
 ```
 
