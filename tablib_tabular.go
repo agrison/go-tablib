@@ -60,7 +60,9 @@ func (d *Dataset) Tabular(format string) string {
 						ipos = pos + 1
 					}
 				}
-				b.WriteString(line[ipos:])
+				if ipos < len(line) {
+					b.WriteString(line[ipos:])
+				}
 				b.WriteString(" | \n")
 			}
 			return b.String()
