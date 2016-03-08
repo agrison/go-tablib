@@ -6,35 +6,41 @@ import (
 )
 
 // XML returns a XML representation of the Dataset as string.
-func (d *Dataset) XML() string {
+func (d *Dataset) XML() (string, error) {
 	return d.XMLWithTagNamePrefixIndent("row", "  ", "  ")
 }
 
 // XML returns a XML representation of the Databook as string.
-func (d *Databook) XML() string {
+func (d *Databook) XML() (string, error) {
 	str := "<databook>\n"
 	for _, s := range d.sheets {
 		str += "  <sheet>\n    <title>" + s.title + "</title>\n    "
-		str += s.dataset.XMLWithTagNamePrefixIndent("row", "      ", "  ")
+        row, err := s.dataset.XMLWithTagNamePrefixIndent("row", "      ", "  ")
+        if err != nil {
+            return "", nil
+        }
+		str += row
 		str += "\n  </sheet>"
 	}
 	str += "\n</databook>"
-	return str
+	return str, nil
 }
 
 // XMLWithTagNamePrefixIndent returns a XML representation with custom tag, prefix and indent.
-func (d *Dataset) XMLWithTagNamePrefixIndent(tagName, prefix, indent string) string {
+func (d *Dataset) XMLWithTagNamePrefixIndent(tagName, prefix, indent string) (string, error) {
 	back := d.Dict()
 
 	var b bytes.Buffer
 	b.WriteString("<dataset>\n")
 	for _, r := range back {
 		m := mxj.Map(r.(map[string]interface{}))
-		m.XmlIndentWriter(&b, prefix, indent, tagName)
+		if err :=m.XmlIndentWriter(&b, prefix, indent, tagName); err != nil {
+            return "", err
+        }
 	}
 	b.WriteString("\n" + prefix + "</dataset>")
 
-	return b.String()
+	return b.String(), nil
 }
 
 // LoadXML loads a Dataset from an XML source.

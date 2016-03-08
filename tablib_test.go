@@ -3,9 +3,10 @@ package tablib_test
 import (
 	"bytes"
 	"encoding/base64"
+	"testing"
+
 	tablib "github.com/agrison/go-tablib"
 	. "gopkg.in/check.v1"
-	"testing"
 )
 
 func Test(t *testing.T) { TestingT(t) }
@@ -702,6 +703,27 @@ func (s *TablibSuite) TestLoadXML(c *C) {
 	c.Assert(r["firstName"], Equals, "John")
 	r, _ = ds.Row(1)
 	c.Assert(r["lastName"], Equals, "Washington")
+}
+
+func (s *TablibSuite) TestXML(c *C) {
+	ds := presidentDataset()
+	xml, err := ds.XML()
+	c.Assert(err, Equals, nil)
+	c.Assert(xml, Equals, "<dataset>\n"+
+		"  <row>\n"+
+		"    <firstName>John</firstName>\n"+
+		"    <gpa>90</gpa>\n"+
+		"    <lastName>Adams</lastName>\n"+
+		"  </row>  <row>\n"+
+		"    <firstName>George</firstName>\n"+
+		"    <gpa>67</gpa>\n"+
+		"    <lastName>Washington</lastName>\n"+
+		"  </row>  <row>\n"+
+		"    <firstName>Thomas</firstName>\n"+
+		"    <gpa>50</gpa>\n"+
+		"    <lastName>Jefferson</lastName>\n"+
+		"  </row>\n"+
+		"  </dataset>")
 }
 
 // ---------- Benchmarking ----------
