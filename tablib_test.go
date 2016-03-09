@@ -416,13 +416,13 @@ func (s *TablibSuite) TestInvalidSubset(c *C) {
 func (s *TablibSuite) TestJSON(c *C) {
 	ds := frenchPresidentDataset()
 	j, _ := ds.JSON()
-	c.Assert(j, Equals, "[{\"firstName\":\"Jacques\",\"gpa\":88,\"lastName\":\"Chirac\"},{\"firstName\":\"Nicolas\",\"gpa\":98,\"lastName\":\"Sarkozy\"},{\"firstName\":\"François\",\"gpa\":34,\"lastName\":\"Hollande\"}]")
+	c.Assert(j.String(), Equals, "[{\"firstName\":\"Jacques\",\"gpa\":88,\"lastName\":\"Chirac\"},{\"firstName\":\"Nicolas\",\"gpa\":98,\"lastName\":\"Sarkozy\"},{\"firstName\":\"François\",\"gpa\":34,\"lastName\":\"Hollande\"}]")
 }
 
 func (s *TablibSuite) TestYAML(c *C) {
 	ds := frenchPresidentDataset()
 	j, _ := ds.YAML()
-	c.Assert(j, Equals, `- firstName: Jacques
+	c.Assert(j.String(), Equals, `- firstName: Jacques
   gpa: 88
   lastName: Chirac
 - firstName: Nicolas
@@ -437,7 +437,7 @@ func (s *TablibSuite) TestYAML(c *C) {
 func (s *TablibSuite) TestCSV(c *C) {
 	ds := frenchPresidentDataset()
 	j, _ := ds.CSV()
-	c.Assert(j, Equals, `firstName,lastName,gpa
+	c.Assert(j.String(), Equals, `firstName,lastName,gpa
 Jacques,Chirac,88
 Nicolas,Sarkozy,98
 François,Hollande,34
@@ -447,7 +447,7 @@ François,Hollande,34
 func (s *TablibSuite) TestTSV(c *C) {
 	ds := frenchPresidentDataset()
 	j, _ := ds.TSV()
-	c.Assert(j, Equals, `firstName`+"\t"+`lastName`+"\t"+`gpa
+	c.Assert(j.String(), Equals, `firstName`+"\t"+`lastName`+"\t"+`gpa
 Jacques`+"\t"+`Chirac`+"\t"+`88
 Nicolas`+"\t"+`Sarkozy`+"\t"+`98
 François`+"\t"+`Hollande`+"\t"+`34
@@ -457,7 +457,7 @@ François`+"\t"+`Hollande`+"\t"+`34
 func (s *TablibSuite) TestHTML(c *C) {
 	ds := frenchPresidentDataset()
 	j := ds.HTML()
-	c.Assert(j, Equals, `<table class="table table-striped">
+	c.Assert(j.String(), Equals, `<table class="table table-striped">
 	<thead>
 		<tr>
 			<th>firstName</th>
@@ -488,7 +488,7 @@ func (s *TablibSuite) TestHTML(c *C) {
 func (s *TablibSuite) TestTabular(c *C) {
 	ds := frenchPresidentDataset()
 	j := ds.Tabular(tablib.TabularGrid)
-	c.Assert(j, Equals, `+--------------+-------------+--------+
+	c.Assert(j.String(), Equals, `+--------------+-------------+--------+
 |    firstName |    lastName |    gpa |
 +==============+=============+========+
 |      Jacques |      Chirac |     88 |
@@ -500,7 +500,7 @@ func (s *TablibSuite) TestTabular(c *C) {
 `)
 
 	j = ds.Tabular(tablib.TabularSimple)
-	c.Assert(j, Equals, `--------------  -------------  --------`+"\n"+
+	c.Assert(j.String(), Equals, `--------------  -------------  --------`+"\n"+
 		`    firstName       lastName       gpa `+"\n"+
 		`--------------  -------------  --------`+"\n"+
 		`      Jacques         Chirac        88 `+"\n"+
@@ -512,7 +512,7 @@ func (s *TablibSuite) TestTabular(c *C) {
 		"\n")
 
 	j = ds.Tabular(tablib.TabularCondensed)
-	c.Assert(j, Equals, `--------------  -------------  --------`+"\n"+
+	c.Assert(j.String(), Equals, `--------------  -------------  --------`+"\n"+
 		`    firstName       lastName       gpa `+"\n"+
 		`--------------  -------------  --------`+"\n"+
 		`      Jacques         Chirac        88 `+"\n"+
@@ -522,7 +522,7 @@ func (s *TablibSuite) TestTabular(c *C) {
 		"\n")
 
 	j = presidentDataset().Tabular(tablib.TabularMarkdown)
-	c.Assert(j, Equals, `|     firstName   |       lastName    |    gpa  |`+" \n"+
+	c.Assert(j.String(), Equals, `|     firstName   |       lastName    |    gpa  |`+" \n"+
 		`| --------------  | ---------------   | ------- |`+" \n"+
 		`|          John   |          Adams    |     90  |`+" \n"+
 		`|        George   |     Washington    |     67  |`+" \n"+
@@ -532,7 +532,7 @@ func (s *TablibSuite) TestTabular(c *C) {
 func (s *TablibSuite) TestMySQL(c *C) {
 	ds := frenchPresidentDataset()
 	j := ds.MySQL("presidents")
-	c.Assert(j, Equals, `CREATE TABLE IF NOT EXISTS presidents
+	c.Assert(j.String(), Equals, `CREATE TABLE IF NOT EXISTS presidents
 (
 	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	firstName VARCHAR(9),
@@ -551,7 +551,7 @@ COMMIT;
 func (s *TablibSuite) TestPostgres(c *C) {
 	ds := frenchPresidentDataset()
 	j := ds.Postgres("presidents")
-	c.Assert(j, Equals, `CREATE TABLE IF NOT EXISTS presidents
+	c.Assert(j.String(), Equals, `CREATE TABLE IF NOT EXISTS presidents
 (
 	id SERIAL PRIMARY KEY,
 	firstName TEXT,
@@ -709,7 +709,7 @@ func (s *TablibSuite) TestXML(c *C) {
 	ds := presidentDataset()
 	xml, err := ds.XML()
 	c.Assert(err, Equals, nil)
-	c.Assert(xml, Equals, "<dataset>\n"+
+	c.Assert(xml.String(), Equals, "<dataset>\n"+
 		"  <row>\n"+
 		"    <firstName>John</firstName>\n"+
 		"    <gpa>90</gpa>\n"+

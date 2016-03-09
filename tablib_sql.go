@@ -73,20 +73,20 @@ func isStringColumn(c string) bool {
 
 // MySQL returns a string representing a suite of MySQL commands
 // recreating the Dataset into a table.
-func (d *Dataset) MySQL(table string) string {
+func (d *Dataset) MySQL(table string) *Exportable {
 	return d.sql(table, typeMySQL)
 }
 
 // Postgres returns a string representing a suite of Postgres commands
 // recreating the Dataset into a table.
-func (d *Dataset) Postgres(table string) string {
+func (d *Dataset) Postgres(table string) *Exportable {
 	return d.sql(table, typePostgres)
 }
 
 // sql returns a string representing a suite of SQL commands
 // recreating the Dataset into a table.
-func (d *Dataset) sql(table, dbType string) string {
-	var b bytes.Buffer
+func (d *Dataset) sql(table, dbType string) *Exportable {
+	b := newBuffer()
 
 	tableSQL, columnTypes, columnValues := d.createTable(table, dbType)
 	b.WriteString(tableSQL)
@@ -116,7 +116,7 @@ func (d *Dataset) sql(table, dbType string) string {
 	}
 	b.WriteString("\nCOMMIT;\n")
 
-	return b.String()
+	return newExportable(b)
 }
 
 func (d *Dataset) createTable(table, dbType string) (string, map[string]string, map[string][]interface{}) {

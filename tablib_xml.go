@@ -5,42 +5,43 @@ import (
 	"github.com/clbanning/mxj"
 )
 
-// XML returns a XML representation of the Dataset as string.
-func (d *Dataset) XML() (string, error) {
+// XML returns a XML representation of the Dataset as an Exportable.
+func (d *Dataset) XML() (*Exportable, error) {
 	return d.XMLWithTagNamePrefixIndent("row", "  ", "  ")
 }
 
-// XML returns a XML representation of the Databook as string.
-func (d *Databook) XML() (string, error) {
-	str := "<databook>\n"
+// XML returns a XML representation of the Databook as an Exportable.
+func (d *Databook) XML() (*Exportable, error) {
+	b := newBuffer()
+	b.WriteString("<databook>\n")
 	for _, s := range d.sheets {
-		str += "  <sheet>\n    <title>" + s.title + "</title>\n    "
-        row, err := s.dataset.XMLWithTagNamePrefixIndent("row", "      ", "  ")
-        if err != nil {
-            return "", nil
-        }
-		str += row
-		str += "\n  </sheet>"
+		b.WriteString("  <sheet>\n    <title>" + s.title + "</title>\n    ")
+		row, err := s.dataset.XMLWithTagNamePrefixIndent("row", "      ", "  ")
+		if err != nil {
+			return nil, err
+		}
+		b.Write(row.Bytes())
+		b.WriteString("\n  </sheet>")
 	}
-	str += "\n</databook>"
-	return str, nil
+	b.WriteString("\n</databook>")
+	return newExportable(b), nil
 }
 
 // XMLWithTagNamePrefixIndent returns a XML representation with custom tag, prefix and indent.
-func (d *Dataset) XMLWithTagNamePrefixIndent(tagName, prefix, indent string) (string, error) {
+func (d *Dataset) XMLWithTagNamePrefixIndent(tagName, prefix, indent string) (*Exportable, error) {
 	back := d.Dict()
 
-	var b bytes.Buffer
-	b.WriteString("<dataset>\n")
+	exportable := newExportable(newBuffer())
+	exportable.buffer.WriteString("<dataset>\n")
 	for _, r := range back {
 		m := mxj.Map(r.(map[string]interface{}))
-		if err :=m.XmlIndentWriter(&b, prefix, indent, tagName); err != nil {
-            return "", err
-        }
+		if err := m.XmlIndentWriter(exportable.buffer, prefix, indent, tagName); err != nil {
+			return nil, err
+		}
 	}
-	b.WriteString("\n" + prefix + "</dataset>")
+	exportable.buffer.WriteString("\n" + prefix + "</dataset>")
 
-	return b.String(), nil
+	return exportable, nil
 }
 
 // LoadXML loads a Dataset from an XML source.

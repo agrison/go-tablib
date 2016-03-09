@@ -40,19 +40,19 @@ func LoadDatabookYAML(yamlContent []byte) (*Databook, error) {
 	return db, nil
 }
 
-// YAML returns a YAML representation of the Dataset as string.
-func (d *Dataset) YAML() (string, error) {
+// YAML returns a YAML representation of the Dataset as an Exportable.
+func (d *Dataset) YAML() (*Exportable, error) {
 	back := d.Dict()
 
 	b, err := yaml.Marshal(back)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(b), nil
+	return newExportableFromBytes(b), nil
 }
 
-// YAML returns a YAML representation of the Databook as string.
-func (d *Databook) YAML() (string, error) {
+// YAML returns a YAML representation of the Databook as an Exportable.
+func (d *Databook) YAML() (*Exportable, error) {
 	y := make([]map[string]interface{}, len(d.sheets))
 	i := 0
 	for _, s := range d.sheets {
@@ -63,7 +63,7 @@ func (d *Databook) YAML() (string, error) {
 	}
 	b, err := yaml.Marshal(y)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(b), nil
+	return newExportableFromBytes(b), nil
 }

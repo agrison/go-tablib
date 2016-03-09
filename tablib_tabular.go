@@ -1,7 +1,6 @@
 package tablib
 
 import (
-	"bytes"
 	"github.com/bndr/gotabulate"
 	"regexp"
 	"strings"
@@ -23,14 +22,14 @@ var (
 	TabularMarkdown = "markdown"
 )
 
-// Markdown returns a Markdown table string representation of the Dataset.
-func (d *Dataset) Markdown() string {
+// Markdown returns a Markdown table Exportable representation of the Dataset.
+func (d *Dataset) Markdown() *Exportable {
 	return d.Tabular(TabularMarkdown)
 }
 
-// Tabular returns a tabular string representation of the Dataset.
+// Tabular returns a tabular Exportable representation of the Dataset.
 // format is either grid, simple, condensed or markdown.
-func (d *Dataset) Tabular(format string) string {
+func (d *Dataset) Tabular(format string) *Exportable {
 	back := d.Records()
 	t := gotabulate.Create(back)
 
@@ -48,7 +47,7 @@ func (d *Dataset) Tabular(format string) string {
 				x += utf8.RuneLen(c)
 			}
 
-			var b bytes.Buffer
+			b := newBuffer()
 			lines := strings.Split(rendered, "\n")
 			for _, line := range lines[1 : len(lines)-2] {
 				ipos := 0
@@ -65,9 +64,9 @@ func (d *Dataset) Tabular(format string) string {
 				}
 				b.WriteString(" | \n")
 			}
-			return b.String()
+			return newExportable(b)
 		}
-		return rendered
+		return newExportableFromString(rendered)
 	}
-	return t.Render(format)
+	return newExportableFromString(t.Render(format))
 }

@@ -42,28 +42,31 @@ func LoadDatabookJSON(jsonContent []byte) (*Databook, error) {
 	return db, nil
 }
 
-// JSON returns a JSON representation of the Dataset as string.
-func (d *Dataset) JSON() (string, error) {
+// JSON returns a JSON representation of the Dataset as an Exportable.
+func (d *Dataset) JSON() (*Exportable, error) {
 	back := d.Dict()
 
 	b, err := json.Marshal(back)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(b), nil
+	return newExportableFromBytes(b), nil
 }
 
-// JSON returns a JSON representation of the Databook as string.
-func (d *Databook) JSON() (string, error) {
-	str := "["
+// JSON returns a JSON representation of the Databook as an Exportable.
+func (d *Databook) JSON() (*Exportable, error) {
+	b := newBuffer()
+	b.WriteString("[")
 	for _, s := range d.sheets {
-		str += "{\"title\": \"" + s.title + "\", \"data\": "
+		b.WriteString("{\"title\": \"" + s.title + "\", \"data\": ")
 		js, err := s.dataset.JSON()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		str += js + "},"
+		b.Write(js.Bytes())
+		b.WriteString("},")
 	}
-	str = str[:len(str)-1] + "]"
-	return str, nil
+	by := b.Bytes()
+	by[len(by)-1] = ']'
+	return newExportableFromBytes(by), nil
 }

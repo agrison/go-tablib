@@ -1,11 +1,9 @@
 package tablib
 
-import "bytes"
-
-// HTML returns the HTML representation of the Dataset as string.
-func (d *Dataset) HTML() string {
+// HTML returns the HTML representation of the Dataset as an Exportable.
+func (d *Dataset) HTML() *Exportable {
 	back := d.Records()
-	var b bytes.Buffer
+	b := newBuffer()
 
 	b.WriteString("<table class=\"table table-striped\">\n\t<thead>")
 	for i, r := range back {
@@ -26,18 +24,18 @@ func (d *Dataset) HTML() string {
 	}
 	b.WriteString("\n\t</tbody>\n</table>")
 
-	return b.String()
+	return newExportable(b)
 }
 
-// HTML returns a HTML representation of the Databook as a byte array.
-func (d *Databook) HTML() string {
-	var b bytes.Buffer
+// HTML returns a HTML representation of the Databook as an Exportable.
+func (d *Databook) HTML() *Exportable {
+	b := newBuffer()
 
 	for _, s := range d.sheets {
 		b.WriteString("<h1>" + s.title + "</h1>\n")
-		b.WriteString(s.dataset.HTML())
+		b.Write(s.dataset.HTML().Bytes())
 		b.WriteString("\n\n")
 	}
 
-	return b.String()
+	return newExportable(b)
 }

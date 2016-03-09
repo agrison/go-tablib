@@ -5,19 +5,19 @@ import (
 	"encoding/csv"
 )
 
-// CSV returns a CSV representation of the Dataset as string.
-func (d *Dataset) CSV() (string, error) {
+// CSV returns a CSV representation of the Dataset an Exportable.
+func (d *Dataset) CSV() (*Exportable, error) {
 	records := d.Records()
-	var b bytes.Buffer
+	b := newBuffer()
 
-	w := csv.NewWriter(&b)
+	w := csv.NewWriter(b)
 	w.WriteAll(records) // calls Flush internally
 
 	if err := w.Error(); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return b.String(), nil
+	return newExportable(b), nil
 }
 
 // LoadCSV loads a Dataset by its CSV representation.
@@ -42,19 +42,19 @@ func LoadCSV(input []byte) (*Dataset, error) {
 }
 
 // TSV returns a TSV representation of the Dataset as string.
-func (d *Dataset) TSV() (string, error) {
+func (d *Dataset) TSV() (*Exportable, error) {
 	records := d.Records()
-	var b bytes.Buffer
+	b := newBuffer()
 
-	w := csv.NewWriter(&b)
+	w := csv.NewWriter(b)
 	w.Comma = '\t'
 	w.WriteAll(records) // calls Flush internally
 
 	if err := w.Error(); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return b.String(), nil
+	return newExportable(b), nil
 }
 
 // LoadTSV loads a Dataset by its TSV representation.

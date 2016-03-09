@@ -2,7 +2,7 @@
 
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)][license]
 [![Go Documentation](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)][godocs]
-[![Go Report Card](https://goreportcard.com/badge/github.com/agrison/go-commons-lang)][goreportcard]
+[![Go Report Card](https://goreportcard.com/badge/github.com/agrison/go-tablib)][goreportcard]
 [![Build Status](https://travis-ci.org/agrison/go-tablib.svg?branch=master)](https://travis-ci.org/agrison/go-tablib)
 
 [license]: https://github.com/agrison/go-tablib/blob/master/LICENSE
@@ -40,6 +40,10 @@ A Dataset is a table of tabular data. It must have a header row. Datasets can be
 
 ### tablib.Databook
 A Databook is a set of Datasets. The most common form of a Databook is an Excel file with multiple spreadsheets. Databooks can be exported to JSON, YAML and XML.
+
+### tablib.Exportable
+An exportable is a struct that holds a buffer representing the Databook or Dataset after it has been formated to any of the supported export formats.
+At this point the Datbook or Dataset cannot be modified anymore, but it can be returned as a `string`, a `[]byte` or written to a `io.Writer` or a file.
 
 ## Usage
 
@@ -117,6 +121,7 @@ ds.Tag(4, "luxury") // Bentley
 Filtering the `Dataset` is possible by calling `Filter(column)`:
 ```go
 luxuryCars := ds.Filter("luxury").CSV()
+fmt.Println(luxuryCars)
 // >>>
 // Maker,Model
 // Porsche,911
@@ -126,6 +131,7 @@ luxuryCars := ds.Filter("luxury").CSV()
 
 ```go
 fastCars := ds.Filter("fast").CSV()
+fmt.Println(fastCars)
 // >>>
 // Maker,Model
 // Porsche,911
@@ -145,7 +151,8 @@ ds.AppendValues("Ferrari", "458", 2009)
 ds.AppendValues("Citroen", "Picasso II", 2013)
 ds.AppendValues("Bentley", "Continental GT", 2003)
 
-ds.Sort("Year").CSV()
+sorted := ds.Sort("Year").CSV()
+fmt.Println(sorted)
 // >>
 // Maker, Model, Year
 // Bentley, Continental GT, 2003
@@ -175,7 +182,8 @@ if !ds.Valid() { // validate the whole dataset, errors are retrieved in Dataset.
 
 A Dataset with constrained columns can be filtered to keep only the rows satisfying the constraints.
 ```go
-ds.ValidSubset().Tabular("simple") // Cars after 2008
+valid := ds.ValidSubset().Tabular("simple") // Cars after 2008
+fmt.Println(valid)
 ```
 
 Will output:
@@ -194,7 +202,8 @@ Will output:
 ```
 
 ```go
-ds.InvalidSubset().Tabular("simple") // Cars before 2008
+invalid := ds.InvalidSubset().Tabular("simple") // Cars before 2008
+fmt.Println(invalid)
 ```
 
 Will output:
@@ -232,10 +241,21 @@ ds, _ := LoadYAML([]byte(`- age: 90
 
 ## Exports
 
+### Exportable
+
+Any of the following export format returns an `*Exportable` which means you can use:
+- `Bytes()` to get the content as a byte array
+- `String()` to get the content as a string
+- `WriteTo(io.Writer)` to write the content to an `io.Writer`
+- `WriteFile(filename string, perm os.FileMode)` to write to a file
+
+It avoids unnecessary conversion between `string` and `[]byte` to output/write/whatever.
+Thanks to [@figlief](https://github.com/figlief) for the proposition. 
+
 ### JSON
 ```go
 json, _ := ds.JSON()
-fmt.Printf("%s\n", json)
+fmt.Println(json)
 ```
 
 Will output:
@@ -246,7 +266,7 @@ Will output:
 ### XML
 ```go
 xml := ds.XML()
-fmt.Printf("%s\n", xml)
+fmt.Println(xml)
 ```
 
 Will ouput:
@@ -271,7 +291,7 @@ Will ouput:
 ### CSV
 ```go
 csv, _ := ds.CSV()
-fmt.Printf("%s\n", csv)
+fmt.Println(csv)
 ```
 
 Will ouput:
@@ -285,7 +305,7 @@ Henry,Ford,83
 ### TSV
 ```go
 tsv, _ := ds.TSV()
-fmt.Printf("%s\n", tsv)
+fmt.Println(tsv)
 ```
 
 Will ouput:
@@ -299,7 +319,7 @@ Henry Ford 83
 ### YAML
 ```go
 yaml, _ := ds.YAML()
-fmt.Printf("%s\n", yaml)
+fmt.Println(yaml)
 ```
 
 Will ouput:
@@ -318,7 +338,7 @@ Will ouput:
 ### HTML
 ```go
 html := ds.HTML()
-fmt.Printf("%s\n", html)
+fmt.Println(html)
 ```
 
 Will output:
@@ -354,8 +374,10 @@ Will output:
 ### XLSX
 ```go
 xlsx, _ := ds.XLSX()
+fmt.Println(xlsx)
 // >>>
 // binary content
+xlsx.WriteTo(...)
 ```
 
 ### ASCII
@@ -363,6 +385,7 @@ xlsx, _ := ds.XLSX()
 #### Grid format
 ```go
 ascii := ds.Tabular("grid" /* tablib.TabularGrid */)
+fmt.Println(ascii)
 ```
 
 Will output:
@@ -381,6 +404,7 @@ Will output:
 #### Simple format
 ```go
 ascii := ds.Tabular("simple" /* tablib.TabularSimple */)
+fmt.Println(ascii)
 ```
 
 Will output:
@@ -399,6 +423,7 @@ Will output:
 #### Condensed format
 ```go
 ascii := ds.Tabular("condensed" /* tablib.TabularCondensed */)
+fmt.Println(ascii)
 ```
 
 Similar to simple but with less line feed:
@@ -420,6 +445,7 @@ pipe characters separating columns.
 ```go
 mkd := ds.Markdown() // or
 mkd := ds.Tabular("markdown" /* tablib.TabularMarkdown */)
+fmt.Println(mkd)
 ```
 
 Will output:
@@ -442,6 +468,7 @@ Which equals to the following when rendered as HTML:
 ### MySQL
 ```go
 sql := ds.MySQL()
+fmt.Println(sql)
 ```
 
 Will output:
@@ -466,6 +493,7 @@ Numeric (`uint`, `int`, `float`, ...) are stored as `DOUBLE`, `string`s as `VARC
 ### Postgres
 ```go
 sql := ds.Postgres()
+fmt.Println(sql)
 ```
 
 Will output:

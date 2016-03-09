@@ -1,33 +1,32 @@
 package tablib
 
 import (
-	"bytes"
 	"github.com/tealeg/xlsx"
 )
 
 // XLSX exports the Dataset as a byte array representing the .xlsx format.
-func (d *Dataset) XLSX() ([]byte, error) {
+func (d *Dataset) XLSX() (*Exportable, error) {
 	file := xlsx.NewFile()
 	if err := d.addXlsxSheetToFile(file, "Sheet 1"); err != nil {
 		return nil, err
 	}
 
-	var b bytes.Buffer
-	file.Write(&b)
-	return b.Bytes(), nil
+	b := newBuffer()
+	file.Write(b)
+	return newExportable(b), nil
 }
 
-// XLSX returns a XLSX representation of the Databook as a byte array.
-func (d *Databook) XLSX() ([]byte, error) {
+// XLSX returns a XLSX representation of the Databook as an exportable.
+func (d *Databook) XLSX() (*Exportable, error) {
 	file := xlsx.NewFile()
 
 	for _, s := range d.sheets {
 		s.dataset.addXlsxSheetToFile(file, s.title)
 	}
 
-	var b bytes.Buffer
-	file.Write(&b)
-	return b.Bytes(), nil
+	b := newBuffer()
+	file.Write(b)
+	return newExportable(b), nil
 }
 
 func (d *Dataset) addXlsxSheetToFile(file *xlsx.File, sheetName string) error {
