@@ -578,6 +578,11 @@ Will output the following JSON representation of the Databook:
 go get github.com/agrison/go-tablib
 ```
 
+For those wanting the v1 version where export methods returned a `string` and not an `Exportable`:
+```bash
+go get gopkg.in/agrison/go-tablib.v1
+```
+
 ## TODO
 
 * Loading in more formats
