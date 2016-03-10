@@ -2,7 +2,7 @@ package tablib
 
 import (
 	"bytes"
-	"github.com/clbanning/mxj"
+	"github.com/agrison/mxj"
 )
 
 // XML returns a XML representation of the Dataset as an Exportable.
