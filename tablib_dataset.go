@@ -94,7 +94,18 @@ func (d *Dataset) AppendValues(row ...interface{}) error {
 // AppendValuesTagged appends a row of values to the Dataset with one or multiple tags
 // for filtering purposes.
 func (d *Dataset) AppendValuesTagged(row ...interface{}) error {
-	return d.AppendTagged(row[:])
+	if len(row) < d.cols {
+		return ErrInvalidDimensions
+	}
+	var tags []string
+	for _, tag := range row[d.cols:] {
+		if tagStr, ok := tag.(string); ok {
+			tags = append(tags, tagStr)
+		} else {
+			return ErrInvalidTag
+		}
+	}
+	return d.AppendTagged(row[:d.cols], tags...)
 }
 
 // Insert inserts a row at a given index.

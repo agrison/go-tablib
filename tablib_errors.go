@@ -15,4 +15,6 @@ var (
 	// ErrInvalidDataset is returned when trying to validate a Dataset against
 	// the constraints that have been set on its columns.
 	ErrInvalidDataset = errors.New("tablib: Invalid dataset")
+	// ErrInvalidTag is returned when trying to add a tag which is not a string.
+	ErrInvalidTag = errors.New("tablib: A tag must be a string")
 )

@@ -114,28 +114,31 @@ ds.AppendTagged([]interface{}{"Porsche", "911"}, "fast", "luxury")
 ds.AppendTagged([]interface{}{"Skoda", "Octavia"}, "family")
 ds.AppendTagged([]interface{}{"Ferrari", "458"}, "fast", "luxury")
 ds.AppendValues("Citroen", "Picasso")
-ds.AppendTagged("Bentley", "Continental")
+ds.AppendValues("Bentley", "Continental")
 ds.Tag(4, "luxury") // Bentley
+ds.AppendValuesTagged("Aston Martin", "DB9", /* these are tags */ "fast", "luxury")
 ```
 
 Filtering the `Dataset` is possible by calling `Filter(column)`:
 ```go
-luxuryCars := ds.Filter("luxury").CSV()
+luxuryCars, err := ds.Filter("luxury").CSV()
 fmt.Println(luxuryCars)
 // >>>
 // Maker,Model
 // Porsche,911
 // Ferrari,458
 // Bentley,Continental
+// Aston Martin,DB9
 ```
 
 ```go
-fastCars := ds.Filter("fast").CSV()
+fastCars, err := ds.Filter("fast").CSV()
 fmt.Println(fastCars)
 // >>>
 // Maker,Model
 // Porsche,911
 // Ferrari,458
+// Aston Martin,DB9
 ```
 
 Tags at a specific row can be retrieved by calling `Dataset.Tags(index int)`
@@ -151,7 +154,7 @@ ds.AppendValues("Ferrari", "458", 2009)
 ds.AppendValues("Citroen", "Picasso II", 2013)
 ds.AppendValues("Bentley", "Continental GT", 2003)
 
-sorted := ds.Sort("Year").CSV()
+sorted, err := ds.Sort("Year").CSV()
 fmt.Println(sorted)
 // >>
 // Maker, Model, Year
@@ -265,7 +268,7 @@ Will output:
 
 ### XML
 ```go
-xml := ds.XML()
+xml, _ := ds.XML()
 fmt.Println(xml)
 ```
 
